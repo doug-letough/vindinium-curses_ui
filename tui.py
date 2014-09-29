@@ -69,7 +69,7 @@ class tui:
 				self.stdscr.addstr(i, 0, VR, curses.A_BOLD)
 				self.stdscr.addstr(i, 79, VR, curses.A_BOLD)
 			if i in separators:
-				self.stdscr.addstr(i, 7, VR, curses.A_BOLD)
+				self.stdscr.addstr(i, 12, VR, curses.A_BOLD)
 				self.stdscr.addstr(i, 21, VR, curses.A_BOLD)
 				self.stdscr.addstr(i, 29, VR, curses.A_BOLD)
 				self.stdscr.addstr(i, 36, VR, curses.A_BOLD)
@@ -79,8 +79,8 @@ class tui:
 		self.stdscr.addstr(1, 2, "Playing at:", curses.A_BOLD)
 		self.stdscr.addstr(1, 44, "| Elapsed:", curses.A_BOLD)
 		self.stdscr.addstr(1, 61, "| Pos:", curses.A_BOLD)
-		self.stdscr.addstr(3, 2, "Turn", curses.A_BOLD)
-		self.stdscr.addstr(3, 11, "Action", curses.A_BOLD)
+		self.stdscr.addstr(3, 4, "Turn", curses.A_BOLD)
+		self.stdscr.addstr(3, 14, "Action", curses.A_BOLD)
 		self.stdscr.addstr(3, 23, "Move", curses.A_BOLD)
 		self.stdscr.addstr(3, 31, "Life", curses.A_BOLD)
 		self.stdscr.addstr(3, 38, "Mine count", curses.A_BOLD)
@@ -157,10 +157,10 @@ class tui:
 	def display_url(self, url):
 		self.stdscr.addstr(1, 14, str(url))
 		
-	def display_turn(self, turn):
+	def display_turn(self, turn, max_turns):
 		if turn > 0 :
-			self.stdscr.addstr(5, 3, str(turn-1), curses.A_BOLD )
-		self.stdscr.addstr(7, 3, str(turn), curses.A_BOLD)
+			self.stdscr.addstr(5, 4, str(turn-1)+"/"+str(max_turns), curses.A_BOLD )
+		self.stdscr.addstr(7, 4, str(turn)+"/"+str(max_turns), curses.A_BOLD)
 		
 	def display_elapsed(self, elapsed):
 		attr = 0
@@ -172,10 +172,10 @@ class tui:
 		self.stdscr.addstr(1, 68, str(pos))
 
 	def display_last_action(self, action):
-		self.stdscr.addstr(5, 9, str(action))
+		self.stdscr.addstr(5, 14, str(action))
 		
 	def display_action(self, action):
-		self.stdscr.addstr(7, 9, str(action))
+		self.stdscr.addstr(7, 14, str(action))
 		
 	def display_last_move(self, move):
 		self.stdscr.addstr(5, 23, str(move))
@@ -197,15 +197,15 @@ class tui:
 		
 	def display_mine_count(self, mine_count):
 		attr = 0
-		if mine_count == 0:
+		if mine_count[0] == "0":
 			attr = curses.color_pair(3) + curses.A_BOLD
-		self.stdscr.addstr(7, 42, str(mine_count), attr)
+		self.stdscr.addstr(7, 40, str(mine_count), attr)
 		
 	def display_last_mine_count(self, mine_count):
 		attr = 0
-		if mine_count == 0:
+		if mine_count[0] == "0":
 			attr = curses.color_pair(3) + curses.A_BOLD
-		self.stdscr.addstr(5, 42, str(mine_count), attr)
+		self.stdscr.addstr(5, 40, str(mine_count), attr)
 	
 	def display_gold(self, gold):
 		self.stdscr.addstr(7, 53, str(gold))

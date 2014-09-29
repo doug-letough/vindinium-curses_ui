@@ -37,7 +37,7 @@ class Game:
 		self.walls_locs = []
 		self.url = None
 		self.turn = None
-		self.max_turn = None
+		self.max_turns = None
 		self.finished = None
 		self.board_size = None
 		self.board_map = []
@@ -53,8 +53,7 @@ class Game:
 	
 	def set_url(self, url):
 		""" Set the game object url var """
-		self.url = url
-		
+		self.url = url			
 		
 	def process_hero(self, hero):
 		""" Process the hero data """
@@ -67,7 +66,7 @@ class Game:
 					'heroes': self.process_heroes}
 					
 		self.turn = game['turn']
-		self.max_turn = game['maxTurns']
+		self.max_turns = game['maxTurns']
 		self.finished = game['finished']
 		
 		for key in game :

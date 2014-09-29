@@ -85,13 +85,13 @@ class Curses_ui_bot:
 			self.gui.display_last_life(self.last_life)
 			self.gui.display_life(self.game.hero.life)
 			self.gui.display_last_action(self.last_action)
-			self.gui.display_turn(self.game.turn/4)
+			self.gui.display_turn(self.game.turn/4, self.game.max_turns/4)
 			self.gui.display_elo(self.game.hero.elo)
 			self.gui.display_last_elo(self.last_elo)
 			self.gui.display_gold(self.game.hero.gold)
 			self.gui.display_last_gold(self.last_gold)
-			self.gui.display_mine_count(self.game.hero.mine_count)
-			self.gui.display_last_mine_count(self.last_mine_count)
+			self.gui.display_mine_count(str(self.game.hero.mine_count)+"/"+str(len(self.game.mines)))
+			self.gui.display_last_mine_count(str(self.last_mine_count)+"/"+str(len(self.game.mines)))
 
 			# You can also use those methods to display more information
 			# Function names are explicit, don't they ?
