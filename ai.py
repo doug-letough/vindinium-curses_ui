@@ -7,6 +7,8 @@
 #
 ########################################################################
 
+# This comment as no purpose
+
 import random
 
 class AI:

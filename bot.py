@@ -6,6 +6,7 @@ from game import Game
 import tui
 import ai
 
+# This comment as no purpose
 
 DIRS = ["North", "East", "South", "West", "Stay"]
 ACTIONS = ["Go mine", "Go beer", "Go enemy"]
