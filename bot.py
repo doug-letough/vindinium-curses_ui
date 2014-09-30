@@ -102,12 +102,12 @@ class Curses_ui_bot:
 			# Print what you think is usefull to understand
 			# how the decision has been taken to make this move
 			# If too long the string will be truncated to fit 
-			# in the 63 chars display
+			# in the display
 			self.gui.display_decision(self.decision)
 			
 			# Print the estimated path to reach the goal if any
 			# If too long the path will be truncated to fit 
-			# in the 62 chars display
+			# in the display
 			self.gui.display_path(self.path_to_goal)
 			
 			# Finally display selected move

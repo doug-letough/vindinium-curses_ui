@@ -3,7 +3,7 @@
 
 ########################################################################
 #
-# Pure random A.I, you lmay NOT use it to win ;-)
+# Pure random A.I, you may NOT use it to win ;-)
 #
 ########################################################################
 
@@ -36,7 +36,7 @@ class AI:
 		#		at the 'Decision' place.
 		#	
 		# 4- hero_move :
-		#		A string in one of the foolowing : West, East, North, South, Stay
+		#		A string in one of the following : West, East, North, South, Stay
 		#
 		# 5 - nearest_enemy_pos :
 		#		A tuple containing the nearest enenmy position (see above)
