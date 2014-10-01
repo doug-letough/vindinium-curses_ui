@@ -207,7 +207,6 @@ class tui:
 				elif char == "@":
 					attr = curses.A_BOLD + curses.color_pair(2)
 				elif char == "X":
-					char = 164
 					attr = curses.A_BOLD + curses.color_pair(7)
 				
 				if char != " ":
