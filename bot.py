@@ -29,6 +29,10 @@ class Curses_ui_bot:
 		self.last_action = None
 		self.path_to_goal = None
 		self.decision = None
+		self.last_pos = None
+		self.last_nearest_enemy_pos = None
+		self.last_nearest_mine_pos = None
+		self.last_nearest_tavern_pos = None
 		
 		# The AI, Skynet's rising !
 		self.ai = ai.AI()
@@ -74,9 +78,11 @@ class Curses_ui_bot:
 			
 			# Use the following methods to display datas
 			# within the interface
-			self.gui.display_url(state['viewUrl'])			
+			self.gui.display_url(state['viewUrl'])		
+			self.gui.display_bot_name(self.game.hero.name)		
 			self.gui.display_last_move(self.hero_last_move)
 			self.gui.display_pos(self.game.hero.pos)
+			self.gui.display_last_pos(self.last_pos)
 			self.gui.display_last_life(self.last_life)
 			self.gui.display_life(self.game.hero.life)
 			self.gui.display_last_action(self.last_action)
@@ -86,12 +92,16 @@ class Curses_ui_bot:
 			self.gui.display_last_gold(self.last_gold)
 			self.gui.display_mine_count(str(self.game.hero.mine_count)+"/"+str(len(self.game.mines)))
 			self.gui.display_last_mine_count(str(self.last_mine_count)+"/"+str(len(self.game.mines)))
+			
 
 			# You can also use those methods to display more information
 			# Function names are explicit, don't they ?
 			self.gui.display_nearest_mine(self.nearest_mine_pos)
 			self.gui.display_nearest_hero(self.nearest_enemy_pos)
 			self.gui.display_nearest_tavern(self.nearest_tavern_pos)
+			self.gui.display_last_nearest_mine(self.last_nearest_mine_pos)
+			self.gui.display_last_nearest_hero(self.last_nearest_enemy_pos)
+			self.gui.display_last_nearest_tavern(self.last_nearest_tavern_pos)
 
 			# Print what you think is usefull to understand
 			# how the decision has been taken to make this move
@@ -136,6 +146,10 @@ class Curses_ui_bot:
 		self.last_action = self.action
 		self.last_gold = self.game.hero.gold
 		self.last_mine_count = self.game.hero.mine_count
+		self.last_pos = self.game.hero.pos
+		self.last_nearest_enemy_pos = self.nearest_enemy_pos
+		self.last_nearest_mine_pos = self.nearest_mine_pos
+		self.last_nearest_tavern_pos = self.nearest_tavern_pos
 		
 		return self.hero_move
 		

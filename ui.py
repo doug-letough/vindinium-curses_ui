@@ -6,7 +6,7 @@ import re
 
 # Minimal terminal size
 MIN_LINES = 48
-MIN_COLS = 65
+MIN_COLS = 120
 
 class tui:
 	"""The Terminal User Interface for Vindimium bot"""
@@ -89,15 +89,14 @@ class tui:
 		self.stdscr.clear()
 		#- /screen init ----
 		
-		self.data_win = curses.newwin(self.DATA_H, self.DATA_W, self.DATA_Y, self.DATA_X)
-		
+		self.data_win = curses.newwin(self.DATA_H, self.DATA_W, self.DATA_Y, self.DATA_X)		
 		self.data_win.box()
 		self.stdscr.addstr(self.DATA_Y -1 , self.DATA_X +1, "Game", curses.A_BOLD)
 		
 		
 		data_lines = ["Playing", \
 						"Bot name", \
-						"ELO", \
+						"Elo", \
 						"Elapsed time", \
 						"Turn", \
 						"Position", \
@@ -144,6 +143,7 @@ class tui:
 		if self.log_win:
 			self.log_win.refresh()
 
+# MAP ------------------------------------------------------------------
 	
 	def draw_map(self, board_map, path):
 		""" Draw the map"""
@@ -206,12 +206,17 @@ class tui:
 					attr = curses.A_BOLD + curses.color_pair(6)
 				elif char == "@":
 					attr = curses.A_BOLD + curses.color_pair(2)
+				elif char == "X":
+					char = 164
+					attr = curses.A_BOLD + curses.color_pair(7)
 				
 				if char != " ":
 					self.map_win.addch(y+1, x+1, char, attr)
 				x = x +1
 			y = y +1
 		self.stdscr.refresh()
+
+# DATA -----------------------------------------------------------------
 
 	# Following methods are used to display data at
 	# the good place. Names are explicit.
@@ -221,121 +226,120 @@ class tui:
 		self.data_win.addstr(1, 17, str(url))
 		
 	def display_bot_name(self, name):
-		self.data_win.addstr(3, 14, str(url))
+		self.data_win.addstr(3, 15, str(name[0:15]))
 		
 	def display_turn(self, turn, max_turns):
-		if turn > 0 :
-			self.data_win.addstr(9, 15, str(turn-1)+"/"+str(max_turns), curses.A_BOLD )
+		self.clear_data_cell((9, 14), 8)
+		self.clear_data_cell((9, 23), 8)
 		self.data_win.addstr(9, 24, str(turn)+"/"+str(max_turns), curses.A_BOLD)
+		self.data_win.addstr(9, 15, str(turn+1)+"/"+str(max_turns), curses.A_BOLD )
 		
 	def display_elapsed(self, elapsed):
+		self.clear_data_cell((7, 14), 17)
 		attr = 0
 		if elapsed > 0.5 :
 			attr = curses.color_pair(3) + curses.A_BOLD
 		self.data_win.addstr(7, 20, str(elapsed), attr)
 		
 	def display_pos(self, pos):
-		self.data_win.addstr(11, 15, str(pos))
+		self.clear_data_cell((11, 14), 8)
+		self.data_win.addstr(11, 14, str(pos))
 		
 	def display_last_pos(self, pos):
-		self.data_win.addstr(11, 24, str(pos))
+		self.clear_data_cell((11, 23), 8)
+		self.data_win.addstr(11, 23, str(pos))
+
+	def display_action(self, action):
+		self.clear_data_cell((21, 14), 8)
+		self.data_win.addstr(21, 15, str(action))
 
 	def display_last_action(self, action):
+		self.clear_data_cell((21, 23), 8)
 		self.data_win.addstr(21, 24, str(action))
-		
-	def display_action(self, action):
-		self.data_win.addstr(21, 15, str(action))
-		
-	def display_last_move(self, move):
-		self.data_win.addstr(19, 24, str(move))
-		
+
 	def display_move(self, move):
+		self.clear_data_cell((19, 14), 8)
 		self.data_win.addstr(19, 15, str(move))
-		
+
+	def display_last_move(self, move):
+		self.clear_data_cell((19, 23), 8)
+		self.data_win.addstr(19, 24, str(move))
+
+	def display_life(self, life):
+		self.clear_data_cell((13, 14), 8)
+		attr = 0
+		if life < 20 :
+			attr = curses.color_pair(3) + curses.A_BOLD
+		self.data_win.addstr(13, 16, str(life), attr)
+
 	def display_last_life(self, life):
+		self.clear_data_cell((13, 23), 8)
 		attr = 0
 		if life < 20 :
 			attr = curses.color_pair(3) + curses.A_BOLD
 		self.data_win.addstr(13, 25, str(life), attr)
 		
-	def display_life(self, life):
-		attr = 0
-		if life < 20 :
-			attr = curses.color_pair(3) + curses.A_BOLD
-		self.data_win.addstr(13, 16, str(life), attr)
-		
 	def display_mine_count(self, mine_count):
+		self.clear_data_cell((15, 14), 8)
 		attr = 0
 		if mine_count[0] == "0":
 			attr = curses.color_pair(3) + curses.A_BOLD
 		self.data_win.addstr(15, 15, str(mine_count), attr)
 		
 	def display_last_mine_count(self, mine_count):
+		self.clear_data_cell((15, 23), 8)
 		attr = 0
 		if mine_count[0] == "0":
 			attr = curses.color_pair(3) + curses.A_BOLD
 		self.data_win.addstr(15, 24, str(mine_count), attr)
 	
 	def display_gold(self, gold):
+		self.clear_data_cell((17, 14), 8)
 		self.data_win.addstr(17, 15, str(gold))
 		
 	def display_last_gold(self, gold):
+		self.clear_data_cell((17, 23), 8)
 		self.data_win.addstr(17, 24, str(gold))
 	
 	def display_elo(self, elo):
 		self.data_win.addstr(5, 20, str(elo))
 			
 	def display_nearest_mine(self, mine):
-		self.data_win.addstr(27, 15, str(mine))
+		self.clear_data_cell((27, 14), 8)
+		self.data_win.addstr(27, 14, str(mine))
+		
+	def display_last_nearest_mine(self, mine):
+		self.clear_data_cell((27, 23), 8)
+		self.data_win.addstr(27, 23, str(mine))
 		
 	def display_nearest_tavern(self, tavern):
-		self.data_win.addstr(25, 15, str(tavern))
-		
+		self.clear_data_cell((25, 14), 8)
+		self.data_win.addstr(25, 14, str(tavern))
+
+	def display_last_nearest_tavern(self, tavern):
+		self.clear_data_cell((25, 23), 8)
+		self.data_win.addstr(25, 23, str(tavern))
+
 	def display_nearest_hero(self, hero):
-		self.data_win.addstr(23, 15, str(hero))
+		self.clear_data_cell((23, 14), 8)
+		self.data_win.addstr(23, 14, str(hero))
+
+	def display_last_nearest_hero(self, hero):
+		self.clear_data_cell((23, 23), 8)
+		self.data_win.addstr(23, 23, str(hero))
 	
 	def display_decision(self, decision):
-		if len(str(decision)) > 51 :
-			decision = str(decision)[0:48]+"..."
-		self.path_win.addstr(1, 14, str(decision))
+		decision = str(decision)[0:48]+"..."
+		self.path_win.addstr(1, 14, decision)
 		
 	def display_path(self, path):
-		if len(str(path)) > 51 :
-			path = str(path)[0:48]+"..."
-		self.path_win.addstr(3, 14, str(path))
-	
-	def term_error(self, error):
-		""" Manage terminal errors. 
-		May not work at all ! """
-		# Terminal is to small and not resizable
-		screen_y, screen_x = self.stdscr.getmaxyx() 
-		self.quit_ui()
-		print ("Unable to resize terminal: Your terminal needs to be at least "+\
-		str(MIN_LINES)+" lines X "+str(MIN_COLS)+" cols and was "+str(screen_y)+"X"+str(screen_y))
-		print error
-		quit()
-		
-	def ask_quit(self):
-		""" What don't you understand in 'press q to exit' ? ;-) """
-		#~ self.help_win.clear()
-		self.help_win.addstr(1, 1, "Press 'q' to quit.")
-		curses.doupdate()
+		path = str(path)[0:48]+"..."
+		self.path_win.addstr(3, 14, path)
 
-		k = self.help_win.getkey()
-		if k == 'q':
-			self.quit_ui()
-		else :
-			self.ask_quit()
-	
-	def quit_ui(self):
-		""" Quit the UI and restore terminal state """
-		self.stdscr.clear()
-		curses.nocbreak()
-		self.stdscr.keypad(0)
-		curses.curs_set(1)
-		curses.echo()
-		curses.endwin()
+	def clear_data_cell(self, pos, length):
+		self.data_win.hline(pos[0], pos[1],  " ", length)
 
+# LOG ------------------------------------------------------------------
 
 	def append_log(self, data):
 		""" Append log with new data """		
@@ -368,3 +372,39 @@ class tui:
 				self.log_win.addstr(i+1, 1, entry, attr)
 				i += 1
 			self.refresh()
+
+# QUIT -----------------------------------------------------------------
+		
+	def ask_quit(self):
+		""" What don't you understand in 'press q to exit' ? ;-) """
+		#~ self.help_win.clear()
+		self.help_win.addstr(1, 1, "Press 'q' to quit.")
+		curses.doupdate()
+
+		k = self.help_win.getkey()
+		if k == 'q':
+			self.quit_ui()
+		else :
+			self.ask_quit()
+	
+	def quit_ui(self):
+		""" Quit the UI and restore terminal state """
+		self.stdscr.clear()
+		curses.nocbreak()
+		self.stdscr.keypad(0)
+		curses.curs_set(1)
+		curses.echo()
+		curses.endwin()
+
+# ERROR ----------------------------------------------------------------
+
+	def term_error(self, error):
+		""" Manage terminal errors. 
+		May not work at all ! """
+		# Terminal is to small and not resizable
+		screen_y, screen_x = self.stdscr.getmaxyx() 
+		self.quit_ui()
+		print ("Unable to resize terminal: Your terminal needs to be at least "+\
+		str(MIN_LINES)+" lines X "+str(MIN_COLS)+" cols and was "+str(screen_y)+"X"+str(screen_y))
+		print error
+		quit()

@@ -124,14 +124,19 @@ class Game:
 			self.board_map.append(map_line)
 			map_line = ""
 
-
 	def process_heroes(self, heroes):
 		""" Add heroes """
 		for hero in heroes:
 			self.spawn_points_locs[(hero['spawnPos']['y'], hero['spawnPos']['x'])] = hero['id']
 			self.heroes.append(Hero(hero))
+			# Add spawn points to map
+			line = list(self.board_map[int(hero['spawnPos']['x'])])
+			if line[int(hero['spawnPos']['y'])] != "@" and \
+				line[int(hero['spawnPos']['y'])]  != "H":
+				line[int(hero['spawnPos']['y'])] = "X"
+			line = "".join(line)
+			self.board_map[int(hero['spawnPos']['x'])] = line
 
-		
 		
 				
 	
