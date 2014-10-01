@@ -5,7 +5,8 @@ import os
 import sys
 import requests
 from bot import Curses_ui_bot
-import tui
+import ui
+import curses
 
 TIMEOUT=15
 
@@ -29,7 +30,7 @@ def _print(*args, **kwargs):
               
 	if my_bot.gui:
 		# bot has a gui so we add this entries to its log panel
-		my_bot.gui.display(printable)
+		my_bot.gui.append_log(printable)
 	else:
 		print printable
 				
@@ -92,7 +93,7 @@ def start(server_url, key, mode, turns, bot):
 	
 	# Start the GUI
 	if not bot.gui :
-		bot.start_ui()
+		curses.wrapper(bot.start_ui)
 	
 	_print("Playing at: " + state['viewUrl'])
 
@@ -104,12 +105,12 @@ def start(server_url, key, mode, turns, bot):
 		# Remove the try/except exception trap to help debugging 
 		# your bot, but keep the "direction = bot.move(state)" line.
 		#~ try:
-			direction = bot.move(state)
-		except Exception, e:
-			_print("Error at client.start:", str(e))
-			_print("Please report this error to doug.letough@free.fr.")
-			if bot.gui:
-				bot.gui.ask_quit()
+		direction = bot.move(state)
+		#~ except Exception, e:
+			#~ _print("Error at client.start:", str(e))
+			#~ _print("Please report this error to doug.letough@free.fr.")
+			#~ if bot.gui:
+				#~ bot.gui.ask_quit()
 
 		# Send the move and receive the updated game state
 		url = state['playUrl']

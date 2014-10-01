@@ -3,7 +3,7 @@
 
 import time
 from game import Game
-import tui
+import ui
 import ai
 
 
@@ -20,10 +20,9 @@ class Curses_ui_bot:
 		self.gui = None
 		self.state = None
 		self.game = None
-		self.last_elo = None # ??
-		self.last_mine_count = None
-		self.last_gold = None
-		self.last_life = None
+		self.last_mine_count = 0
+		self.last_gold = 0
+		self.last_life = 0
 		self.hero_move = None
 		self.hero_last_move = None
 		self.action = None
@@ -34,10 +33,10 @@ class Curses_ui_bot:
 		# The AI, Skynet's rising !
 		self.ai = ai.AI()
 	
-	def start_ui(self):
+	def start_ui(self, scr):
 		""" Start the curses UI """
 		if self.use_ui :
-			self.gui = tui.tui()
+			self.gui = ui.tui(scr)
 	
 	def move(self, state):
 		start = time.time()
@@ -69,11 +68,7 @@ class Curses_ui_bot:
 		#~ self._print("My direction:", self.hero_move)
 		#~ self._print("My pos:", self.game.hero.pos)
 		
-		if self.use_ui :
-			# init terminal and draw UI
-			self.gui.clear()
-			self.gui.draw_ui()
-			
+		if self.use_ui :			
 			# Draw the map
 			self.gui.draw_map(self.game.board_map, self.path_to_goal)
 			
@@ -87,7 +82,6 @@ class Curses_ui_bot:
 			self.gui.display_last_action(self.last_action)
 			self.gui.display_turn(self.game.turn/4, self.game.max_turns/4)
 			self.gui.display_elo(self.game.hero.elo)
-			self.gui.display_last_elo(self.last_elo)
 			self.gui.display_gold(self.game.hero.gold)
 			self.gui.display_last_gold(self.last_gold)
 			self.gui.display_mine_count(str(self.game.hero.mine_count)+"/"+str(len(self.game.mines)))
@@ -142,7 +136,6 @@ class Curses_ui_bot:
 		self.last_action = self.action
 		self.last_gold = self.game.hero.gold
 		self.last_mine_count = self.game.hero.mine_count
-		self.last_elo = self.game.hero.elo	
 		
 		return self.hero_move
 		
@@ -167,7 +160,7 @@ class Curses_ui_bot:
 				  
 		if self.gui:
 			# bot has a gui so we add this entries to its log panel
-			self.gui.display(printable)
+			self.gui.append_log(printable)
 		else:
 			print printable 
 	
