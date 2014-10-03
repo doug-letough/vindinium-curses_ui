@@ -76,6 +76,9 @@ class Curses_ui_bot:
 			# Draw the map
 			self.gui.draw_map(self.game.board_map, self.path_to_goal)
 			
+			# Print informations about other players
+			self.gui.display_heroes(self.game.heroes, self.game.hero.user_id)
+			
 			# Use the following methods to display datas
 			# within the interface
 			self.gui.display_url(state['viewUrl'])		

@@ -108,7 +108,7 @@ def start(server_url, key, mode, turns, bot):
 		direction = bot.move(state)
 		#~ except Exception, e:
 			#~ _print("Error at client.start:", str(e))
-			#~ _print("Please report this error to doug.letough@free.fr.")
+			#~ _print("If your code is not responsible of this error, please report this error to doug.letough@free.fr.")
 			#~ if bot.gui:
 				#~ bot.gui.ask_quit()
 

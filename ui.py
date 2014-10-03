@@ -5,8 +5,8 @@ import curses, curses.panel
 import re
 
 # Minimal terminal size
-MIN_LINES = 48
-MIN_COLS = 120
+MIN_LINES = 50
+MIN_COLS = 150
 
 class tui:
 	"""The Terminal User Interface for Vindimium bot"""
@@ -16,25 +16,15 @@ class tui:
 		self.DATA_H = 29
 		self.DATA_W = 32
 
-		self.MAP_Y = 0
+		self.MAP_Y = 1
 		self.MAP_X = 0
 		self.MAP_H = 0
 		self.MAP_W = 0
-
-		self.PATH_Y = self.DATA_Y + self.DATA_H + 1
-		self.PATH_X = 0
-		self.PATH_H = 6
-		self.PATH_W = 66
-
-		self.LOG_Y = self.PATH_Y + self.PATH_H + 1
-		self.LOG_X = 0
-		self.LOG_H = 12
-		self.LOG_W = 66
-
-		self.HELP_X = 0
-		self.HELP_Y = self.LOG_Y + self.LOG_H - 3
-		self.HELP_H = 3
-		self.HELP_W = self.LOG_W
+		
+		self.PLAYERS_Y = 1
+		self.PLAYERS_X = self.MAP_X + self.MAP_W + 2
+		self.PLAYERS_H = 21
+		self.PLAYERS_W = 62
 
 		self.PATH_Y = self.DATA_Y + self.DATA_H + 1
 		self.PATH_X = 0
@@ -50,12 +40,12 @@ class tui:
 		self.HELP_Y = self.LOG_Y + self.LOG_H - 3
 		self.HELP_H = 3
 		self.HELP_W = self.LOG_W
-		
-		
+	
 		self.map_win = None
 		self.path_win = None
 		self.log_win = None
 		self.help_win = None
+		self.players_win = None
 		self.stdscr = scr
 		self.log_entries = []
 		
@@ -92,7 +82,6 @@ class tui:
 		self.data_win = curses.newwin(self.DATA_H, self.DATA_W, self.DATA_Y, self.DATA_X)		
 		self.data_win.box()
 		self.stdscr.addstr(self.DATA_Y -1 , self.DATA_X +1, "Game", curses.A_BOLD)
-		
 		
 		data_lines = ["Playing", \
 						"Bot name", \
@@ -142,6 +131,8 @@ class tui:
 			self.path_win.refresh()
 		if self.log_win:
 			self.log_win.refresh()
+		if self.players_win:
+			self.players_win.refresh()
 
 # MAP ------------------------------------------------------------------
 	
@@ -169,6 +160,7 @@ class tui:
 		self.path_win.addch(2, 0, curses.ACS_LTEE)
 		self.path_win.addch(2, 65, curses.ACS_RTEE)	
 		self.path_win.addch(0, 13, curses.ACS_TTEE)
+		self.path_win.addch(2, 13, curses.ACS_PLUS)
 		self.path_win.addch(4, 13, curses.ACS_BTEE)		
 		
 		self.stdscr.addstr(self.LOG_Y - 1, self.LOG_X + 1, "Log", curses.A_BOLD)	
@@ -213,12 +205,84 @@ class tui:
 					self.map_win.addch(y+1, x+1, char, attr)
 				x = x +1
 			y = y +1
+			
+		# create the players window if not yet existent
+		if not self.players_win :
+			self.PLAYERS_X = self.MAP_X + self.MAP_W + 3
+			self.stdscr.addstr(self.PLAYERS_Y - 1, self.PLAYERS_X + 1, "Players", curses.A_BOLD)
+			self.players_win = curses.newwin(self.PLAYERS_H, self.PLAYERS_W, self.PLAYERS_Y, self.PLAYERS_X)
+			self.players_win.box()
+			players_lines = ["Name", \
+						"User ID", \
+						"Bot ID", \
+						"Elo", \
+						"Position", \
+						"Life", \
+						"Mine count", \
+						"Gold", \
+						"Spawn pos", \
+						"Crashed" ]
+			
+			self.players_win.vline(1, 13, curses.ACS_VLINE, self.PLAYERS_H-2)
+			self.players_win.vline(1, 29, curses.ACS_VLINE, self.PLAYERS_H-2)
+			self.players_win.vline(1, 45, curses.ACS_VLINE, self.PLAYERS_H-2)
+			self.players_win.addch(0, 13, curses.ACS_TTEE)
+			self.players_win.addch(0, 29, curses.ACS_TTEE)
+			self.players_win.addch(0, 45, curses.ACS_TTEE)
+			self.players_win.addch(self.PLAYERS_H-1, 13, curses.ACS_BTEE)
+			self.players_win.addch(self.PLAYERS_H-1, 29, curses.ACS_BTEE)
+			self.players_win.addch(self.PLAYERS_H-1, 45, curses.ACS_BTEE)
+			
+			y = 0			
+			for line in players_lines:
+					self.players_win.addstr(y+1, 1, line, curses.A_BOLD)
+					if y < len(players_lines)*2 - 2:
+						self.players_win.hline(y+2, 1, curses.ACS_HLINE,  self.PLAYERS_W-2)
+						self.players_win.addch(y+2, 0, curses.ACS_LTEE)
+						self.players_win.addch(y+2, 13, curses.ACS_PLUS)
+						self.players_win.addch(y+2, 29, curses.ACS_PLUS)
+						self.players_win.addch(y+2, 45, curses.ACS_PLUS)
+						self.players_win.addch(y+2, self.PLAYERS_W-1, curses.ACS_RTEE)
+					y += 2
+			
+				
+			
+			
 		self.stdscr.refresh()
 
 # DATA -----------------------------------------------------------------
 
 	# Following methods are used to display data at
 	# the good place. Names are explicit.
+	
+	def display_heroes(self, heroes, bot_id):
+		empty_line = "               "
+		y = 14
+		for hero in heroes :
+			if hero.user_id != bot_id:
+				self.players_win.addstr(1, y, empty_line, curses.A_BOLD)
+				self.players_win.addstr(3, y, empty_line)
+				self.players_win.addstr(5, y, empty_line)
+				self.players_win.addstr(7, y, empty_line)
+				self.players_win.addstr(9, y, empty_line)
+				self.players_win.addstr(11, y, empty_line)
+				self.players_win.addstr(13, y, empty_line)
+				self.players_win.addstr(15, y, empty_line)
+				self.players_win.addstr(17, y, empty_line)
+				self.players_win.addstr(19, y, empty_line)
+				
+				self.players_win.addstr(1, y,str( hero.name), curses.A_BOLD)
+				self.players_win.addstr(3, y, str(hero.user_id))
+				self.players_win.addstr(5, y, str(hero.bot_id))
+				self.players_win.addstr(7, y, str(hero.elo))
+				self.players_win.addstr(9, y, str(hero.pos))
+				self.players_win.addstr(11, y, str(hero.life))
+				self.players_win.addstr(13, y, str(hero.mine_count))
+				self.players_win.addstr(15, y, str(hero.gold))
+				self.players_win.addstr(17, y, str(hero.spawn_pos))
+				self.players_win.addstr(19, y, str(hero.crashed))
+				y += 16
+			
 	
 	def display_url(self, url):
 		url = url[url.rfind("/")+1:]
@@ -332,7 +396,7 @@ class tui:
 		self.path_win.addstr(1, 14, decision)
 		
 	def display_path(self, path):
-		path = str(path)[0:48]+"..."
+		path = str(path).strip('[').strip(']')[0:48]+"..."
 		self.path_win.addstr(3, 14, path)
 
 	def clear_data_cell(self, pos, length):
