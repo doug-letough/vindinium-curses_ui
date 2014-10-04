@@ -37,10 +37,10 @@ class Curses_ui_bot:
 		# The AI, Skynet's rising !
 		self.ai = ai.AI()
 	
-	def start_ui(self, scr):
+	def start_ui(self):
 		""" Start the curses UI """
 		if self.use_ui :
-			self.gui = ui.tui(scr)
+			self.gui = ui.tui()
 	
 	def move(self, state):
 		start = time.time()
@@ -154,6 +154,7 @@ class Curses_ui_bot:
 		self.last_nearest_mine_pos = self.nearest_mine_pos
 		self.last_nearest_tavern_pos = self.nearest_tavern_pos
 		
+		self.gui.refresh()
 		return self.hero_move
 		
 		
@@ -175,7 +176,7 @@ class Curses_ui_bot:
 				printable = printable + str(k) + ": " + str(v) + coma
 				a = a + 1
 				  
-		if self.gui:
+		if self.gui and self.gui.running:
 			# bot has a gui so we add this entries to its log panel
 			self.gui.append_log(printable)
 		else:

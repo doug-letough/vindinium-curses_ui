@@ -7,6 +7,8 @@ import requests
 from bot import Curses_ui_bot
 import ui
 import curses
+import sys
+import select
 
 TIMEOUT=15
 
@@ -28,9 +30,10 @@ def _print(*args, **kwargs):
 			printable = printable + str(k) + ": " + str(v) + coma
 			a = a + 1
               
-	if my_bot.gui:
+	if my_bot.gui and my_bot.gui.running:
 		# bot has a gui so we add this entries to its log panel
 		my_bot.gui.append_log(printable)
+		my_bot.gui.refresh()
 	else:
 		print printable
 				
@@ -41,8 +44,8 @@ def get_new_game_state(session, server_url, key, mode='training', number_of_turn
 
 	if(mode=='training'):
 		#Don't pass the 'map' parameter if you want a random map
-		#~ params = { 'key': key, 'turns': number_of_turns, 'map': 'm5'}
-		params = { 'key': key, 'turns': number_of_turns}
+		params = { 'key': key, 'turns': number_of_turns, 'map': 'm1'}
+		#~ params = { 'key': key, 'turns': number_of_turns}
 		api_endpoint = '/api/training'
 	elif(mode=='arena'):
 		params = { 'key': key}
@@ -80,6 +83,7 @@ def is_finished(state):
 	return state['game']['finished']
 
 def start(server_url, key, mode, turns, bot):
+	RUNNING = True
 	"""Starts a game with all the required parameters"""
 
 	# Create a requests session that will be used throughout the game
@@ -93,24 +97,32 @@ def start(server_url, key, mode, turns, bot):
 	
 	# Start the GUI
 	if not bot.gui :
-		curses.wrapper(bot.start_ui)
+		bot.start_ui()
 	
 	_print("Playing at: " + state['viewUrl'])
 
 	# Default move is no move !
 	direction = "Stay"
 		
-	while not is_finished(state):
+	while not is_finished(state) and RUNNING:
 		# Choose a move
 		# Remove the try/except exception trap to help debugging 
 		# your bot, but keep the "direction = bot.move(state)" line.
-		#~ try:
-		direction = bot.move(state)
-		#~ except Exception, e:
-			#~ _print("Error at client.start:", str(e))
-			#~ _print("If your code is not responsible of this error, please report this error to doug.letough@free.fr.")
-			#~ if bot.gui:
-				#~ bot.gui.ask_quit()
+		try:
+			direction = bot.move(state)
+			while sys.stdin in select.select([sys.stdin], [], [], 0)[0]:
+				line = sys.stdin.read(1)
+				if line.strip() == "q":
+					RUNNING = False
+					bot.gui.quit_ui()
+					break
+				elif line.strip() == "s":
+					bot.gui.switch_players()
+		
+		except Exception, e:
+			_print("Error at client.start:", str(e))
+			_print("If your code is not responsible of this error, please report this error to doug.letough@free.fr.")
+
 
 		# Send the move and receive the updated game state
 		url = state['playUrl']
@@ -121,7 +133,7 @@ def start(server_url, key, mode, turns, bot):
     
 
 if __name__ == "__main__":
-	my_bot = None # our bot
+	my_bot = Curses_ui_bot() # our bot
 
 	if (len(sys.argv) < 4):
 		_print("Usage: %s <key> <[training|arena]> <number-of-games|number-of-turns> [server-url]" % (sys.argv[0]))
@@ -142,17 +154,16 @@ if __name__ == "__main__":
 		else:
 			server_url = "http://vindinium.org"
 
+		game_num = 0
 		for i in range(number_of_games):
 			# start a new game
-			my_bot = Curses_ui_bot()
 			start(server_url, key, mode, number_of_turns, my_bot)
-			_print("Game finished : "+str(i+1)+"/"+str(number_of_games))
-			if i < (number_of_games - 1):
+			if my_bot.gui and my_bot.gui.running and i < (number_of_games - 1):
 				# EXTRA BALL ! Same player shoot again :)
-				if my_bot and my_bot.gui:
-					my_bot.gui.quit_ui()
-			else:
-				# no more game to play
-				if my_bot and my_bot.gui:
-					my_bot.gui.ask_quit()
-			
+				_print("Game finished : "+str(i+1)+"/"+str(number_of_games))
+				#~ my_bot.gui.quit_ui()
+			game_num += 1
+
+		if my_bot.gui.running:
+			_print("Game finished : "+str(game_num)+"/"+str(number_of_games))
+			my_bot.gui.ask_quit()
