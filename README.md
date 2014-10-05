@@ -22,14 +22,15 @@ http://www.vindinium.org/
 2 - Content :
 -------------
 
- - bot.py               The bot source code
- - client.py            The client source code used to connect to game server
- - game.py              Source code used to process data sent by the server
- - ui.py                The curses U.I. source code
  - ai.py                The random A.I. This is where to put your A.I code
- - README.md            This file
- - LICENCE.txt          A copy of the W.T.F.P.L
+ - bot.py               The bot object source code. Collects data processed.
+ - CHANGELOG.TXT        The changelog, you may read it.
+ - client.py            The client source code used to connect to game server
  - curses_ui_bot.png    A screenshot of the running U.I
+ - game.py              Source code used to process data sent by the server
+ - LICENCE.txt          A copy of the W.T.F.P.L
+ - README.md            This file
+ - ui.py                The curses U.I. source code
 
 3 - How to make it work :
 -------------------------
