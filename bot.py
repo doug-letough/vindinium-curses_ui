@@ -72,54 +72,55 @@ class Curses_ui_bot:
 		#~ self._print("My direction:", self.hero_move)
 		#~ self._print("My pos:", self.game.hero.pos)
 		
-		if self.use_ui :			
-			# Draw the map
-			self.gui.draw_map(self.game.board_map, self.path_to_goal)
-			
-			# Print informations about other players
-			self.gui.display_heroes(self.game.heroes, self.game.hero.user_id)
-			
-			# Use the following methods to display datas
-			# within the interface
-			self.gui.display_url(state['viewUrl'])		
-			self.gui.display_bot_name(self.game.hero.name)		
-			self.gui.display_last_move(self.hero_last_move)
-			self.gui.display_pos(self.game.hero.pos)
-			self.gui.display_last_pos(self.last_pos)
-			self.gui.display_last_life(self.last_life)
-			self.gui.display_life(self.game.hero.life)
-			self.gui.display_last_action(self.last_action)
-			self.gui.display_turn(self.game.turn/4, self.game.max_turns/4)
-			self.gui.display_elo(self.game.hero.elo)
-			self.gui.display_gold(self.game.hero.gold)
-			self.gui.display_last_gold(self.last_gold)
-			self.gui.display_mine_count(str(self.game.hero.mine_count)+"/"+str(len(self.game.mines)))
-			self.gui.display_last_mine_count(str(self.last_mine_count)+"/"+str(len(self.game.mines)))
-			
+		if self.use_ui:
+			if not self.gui.paused :	
+				# Draw the map
+				self.gui.draw_map(self.game.board_map, self.path_to_goal)
+				
+				# Print informations about other players
+				self.gui.display_heroes(self.game.heroes, self.game.hero.user_id)
+				
+				# Use the following methods to display datas
+				# within the interface
+				self.gui.display_url(state['viewUrl'])		
+				self.gui.display_bot_name(self.game.hero.name)		
+				self.gui.display_last_move(self.hero_last_move)
+				self.gui.display_pos(self.game.hero.pos)
+				self.gui.display_last_pos(self.last_pos)
+				self.gui.display_last_life(self.last_life)
+				self.gui.display_life(self.game.hero.life)
+				self.gui.display_last_action(self.last_action)
+				self.gui.display_turn(self.game.turn/4, self.game.max_turns/4)
+				self.gui.display_elo(self.game.hero.elo)
+				self.gui.display_gold(self.game.hero.gold)
+				self.gui.display_last_gold(self.last_gold)
+				self.gui.display_mine_count(str(self.game.hero.mine_count)+"/"+str(len(self.game.mines)))
+				self.gui.display_last_mine_count(str(self.last_mine_count)+"/"+str(len(self.game.mines)))
+				
 
-			# You can also use those methods to display more information
-			# Function names are explicit, don't they ?
-			self.gui.display_nearest_mine(self.nearest_mine_pos)
-			self.gui.display_nearest_hero(self.nearest_enemy_pos)
-			self.gui.display_nearest_tavern(self.nearest_tavern_pos)
-			self.gui.display_last_nearest_mine(self.last_nearest_mine_pos)
-			self.gui.display_last_nearest_hero(self.last_nearest_enemy_pos)
-			self.gui.display_last_nearest_tavern(self.last_nearest_tavern_pos)
+				# You can also use those methods to display more information
+				# Function names are explicit, don't they ?
+				self.gui.display_nearest_mine(self.nearest_mine_pos)
+				self.gui.display_nearest_hero(self.nearest_enemy_pos)
+				self.gui.display_nearest_tavern(self.nearest_tavern_pos)
+				self.gui.display_last_nearest_mine(self.last_nearest_mine_pos)
+				self.gui.display_last_nearest_hero(self.last_nearest_enemy_pos)
+				self.gui.display_last_nearest_tavern(self.last_nearest_tavern_pos)
 
-			# Print what you think is usefull to understand
-			# how the decision has been taken to make this move
-			# If too long the string will be truncated to fit 
-			# in the display
-			self.gui.display_decision(self.decision)
-			
-			# Print the estimated path to reach the goal if any
-			# If too long the path will be truncated to fit 
-			# in the display
-			self.gui.display_path(self.path_to_goal)
-			
-			# Finally display selected move
-			self.gui.display_move(self.hero_move)
-			self.gui.display_action(self.action)
+				# Print what you think is usefull to understand
+				# how the decision has been taken to make this move
+				# If too long the string will be truncated to fit 
+				# in the display
+				self.gui.display_decision(self.decision)
+				
+				# Print the estimated path to reach the goal if any
+				# If too long the path will be truncated to fit 
+				# in the display
+				self.gui.display_path(self.path_to_goal)
+				
+				# Finally display selected move
+				self.gui.display_move(self.hero_move)
+				self.gui.display_action(self.action)
 			
 		################################################################
 		# Log
@@ -131,18 +132,7 @@ class Curses_ui_bot:
 		################################################################
 		# /Log
 		################################################################
-		
-		# How long does it take to compute
-		# (and to display it) this move ?
-		end = time.time()
-		elapsed = round(end - start, 3)
-		
-		if self.use_ui:
-			self.gui.display_elapsed(elapsed)
-		
-			# Refresh GUI
-			self.gui.refresh()
-		
+
 		# Store status for later report
 		self.hero_last_move = self.hero_move
 		self.last_life = self.game.hero.life
@@ -154,7 +144,16 @@ class Curses_ui_bot:
 		self.last_nearest_mine_pos = self.nearest_mine_pos
 		self.last_nearest_tavern_pos = self.nearest_tavern_pos
 		
-		self.gui.refresh()
+		# How long does it take to compute
+		# (and to display it) this move ?
+		end = time.time()
+		elapsed = round(end - start, 3)
+		
+		if self.use_ui:
+			if not self.gui.paused:
+				self.gui.display_elapsed(elapsed)
+				self.gui.refresh()
+			
 		return self.hero_move
 		
 		

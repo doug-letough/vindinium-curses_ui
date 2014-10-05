@@ -33,7 +33,6 @@ def _print(*args, **kwargs):
 	if my_bot.gui and my_bot.gui.running:
 		# bot has a gui so we add this entries to its log panel
 		my_bot.gui.append_log(printable)
-		my_bot.gui.refresh()
 	else:
 		print printable
 				
@@ -58,6 +57,7 @@ def get_new_game_state(session, server_url, key, mode='training', number_of_turn
 	else :
 		_print("Error when creating the game")
 		_print(r.text)
+		
 		
 def move(session, url, direction):
 	"""Send a move to the server
@@ -109,16 +109,15 @@ def start(server_url, key, mode, turns, bot):
 		# Remove the try/except exception trap to help debugging 
 		# your bot, but keep the "direction = bot.move(state)" line.
 		try:
-			direction = bot.move(state)
 			while sys.stdin in select.select([sys.stdin], [], [], 0)[0]:
 				line = sys.stdin.read(1)
 				if line.strip() == "q":
 					RUNNING = False
 					bot.gui.quit_ui()
 					break
-				elif line.strip() == "s":
-					bot.gui.switch_players()
-		
+				elif line.strip() == "p":
+					bot.gui.pause()
+			direction = bot.move(state)
 		except Exception, e:
 			_print("Error at client.start:", str(e))
 			_print("If your code is not responsible of this error, please report this error to doug.letough@free.fr.")
