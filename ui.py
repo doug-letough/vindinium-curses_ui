@@ -400,7 +400,7 @@ class tui:
 		self.data_win.addstr(23, 23, str(hero))
 	
 	def display_decision(self, decision):
-		self.path_win.hline(3, 14,  " ", 51)
+		self.path_win.hline(1, 14,  " ", 51)
 		d = ""
 		for h in decision :
 			d += str(h[0])+": "+str(h[1])+" | "
