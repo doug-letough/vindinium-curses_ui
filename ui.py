@@ -40,16 +40,23 @@ class tui:
 		self.LOG_H = 12
 		self.LOG_W = self.DATA_W + self.PLAYERS_W + 2
 
-		self.HELP_X = 1
 		self.HELP_Y = self.LOG_Y + self.LOG_H - 2
+		self.HELP_X = 1
 		self.HELP_H = 1
 		self.HELP_W = self.LOG_W - 2
+		
+		self.TIME_Y = self.LOG_Y + self.LOG_H + 2
+		self.TIME_X = 0
+		self.TIME_H = 0
+		self.TIME_W = 0
 	
 		self.map_win = None
 		self.path_win = None
 		self.log_win = None
 		self.help_win = None
 		self.players_win = None
+		self.time_win = None
+		
 		self.log_entries = []
 		
 		self.stdscr = curses.initscr()
@@ -108,6 +115,8 @@ class tui:
 			self.help_win.noutrefresh()
 		if self.players_win:
 			self.players_win.noutrefresh()
+		if self.time_win:
+			self.time_win.noutrefresh()
 		curses.doupdate()
 
 #- Draw windows --------------------------------------------------------
@@ -227,21 +236,34 @@ class tui:
 					self.players_win.addch(y+2, self.PLAYERS_W-1, curses.ACS_RTEE)
 				y += 2
 
+
+	def draw_time_win(self):
+		self.TIME_W = self.LOG_W + self.MAP_W + 4
+		self.stdscr.addstr(self.TIME_Y - 1, self.TIME_X + 1, "Time line", curses.A_BOLD)
+		self.time_win = curses.newwin(3, self.TIME_W, self.TIME_Y, self.TIME_X)
+		self.time_pan = curses.panel.new_panel(self.time_win)
+		self.time_win.box()
+		self.time_win.addstr(1, 1, " ", curses.color_pair(4) + curses.A_REVERSE)
+		
 # MAP ------------------------------------------------------------------
 	
 	def draw_map(self, board_map, path):
 		""" Draw the map"""
 		board_size = len(board_map)
-
-		self.map_win = curses.newwin(board_size+2, board_size+2, self.MAP_Y, self.MAP_X)
-		self.map_pan = curses.panel.new_panel(self.map_win)
-
-		self.stdscr.addstr(self.MAP_Y - 1, self.MAP_X + 1, "Map ("+str(board_size)+"X"+str(board_size)+")", curses.A_BOLD)
-		self.MAP_H = board_size
-		self.MAP_W = board_size
 		
-		# Clear old map
+		if not self.map_win :
+			self.map_win = curses.newwin(board_size+2, board_size+2, self.MAP_Y, self.MAP_X)
+			self.map_pan = curses.panel.new_panel(self.map_win)
+
+			self.stdscr.addstr(self.MAP_Y - 1, self.MAP_X + 1, "Map ("+str(board_size)+"X"+str(board_size)+")", curses.A_BOLD)
+			self.MAP_H = board_size
+			self.MAP_W = board_size
+		
+		self.map_win.erase()
 		self.map_win.box()
+		
+		if not self.time_win:
+			self.draw_time_win()
 		
 		# highlight choosen path
 		for cell in path:
@@ -423,6 +445,18 @@ class tui:
 
 	def clear_data_cell(self, pos, length):
 		self.data_win.hline(pos[0], pos[1],  " ", length)
+
+	def move_time_cursor(self, row):
+		self.append_log(str(row)+" "+str(self.TIME_W))
+		self.time_win.box()
+		self.time_win.hline(1, 1,  " ", self.TIME_W - 2)
+		if row > 1:
+			self.time_win.addch(0, row - 1, curses.ACS_TTEE)
+			self.time_win.addch(2, row - 1 , curses.ACS_BTEE)
+		if row < self.TIME_W - 2 :
+			self.time_win.addch(0, row + 1, curses.ACS_TTEE)
+			self.time_win.addch(2, row + 1 , curses.ACS_BTEE)
+		self.time_win.addstr(1, row, " ", curses.color_pair(4) + curses.A_REVERSE)
 
 # LOG ------------------------------------------------------------------
 

@@ -12,10 +12,7 @@ TIMEOUT=15
 
 class Client:
 	def __init__(self):
-		self.start = None
-		self.end = None
-		self.elapsed = None
-		#~ elapsed = round(end - self.start, 3)
+		self.start_time = None
 		self.gui = None
 		self.session = None
 		self.state = None
@@ -77,11 +74,22 @@ class Client:
 			# in the display
 			self.gui.display_path(self.bot.path_to_goal)
 			
+			# Move cursor along the time line
+			cursor_pos = int(float(self.gui.TIME_W) / self.bot.game.max_turns * self.bot.game.turn)
+			if cursor_pos == 0 :
+				cursor_pos += 1
+			self.gui.move_time_cursor(cursor_pos)
+			
 			# Finally display selected move
 			self.gui.display_move(self.bot.hero_move)
-			self.gui.display_action(self.bot.action)			
+			self.gui.display_action(self.bot.action)
+			
+			# Add whathever you want to log using self.gui.append_log()
+			# self.gui.append_log("Whatever")
 
-			self.gui.display_elapsed(self.elapsed)
+			elapsed = round(time.time() - self.start, 3)
+			self.gui.display_elapsed(elapsed)
+			
 			self.gui.refresh()
 				
 
@@ -106,6 +114,7 @@ class Client:
 		if self.gui and self.gui.running:
 			# bot has a gui so we add this entries to its log panel
 			self.gui.append_log(printable)
+			self.gui.log_win.refresh()
 		else:
 			print printable
 				
@@ -191,6 +200,9 @@ class Client:
 			# Choose a move
 			# Remove the try/except exception trap to help debugging 
 			# your bot, but keep the "direction = bot.move(state)" line.
+			
+			self.start = time.time()
+			
 			try:
 				while sys.stdin in select.select([sys.stdin], [], [], 0)[0]:
 					line = sys.stdin.read(1)
