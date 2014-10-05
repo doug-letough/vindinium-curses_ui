@@ -50,9 +50,9 @@ class AI:
 		
 		actions = ['mine', 'tavern', 'fight']
 		
-		decisions = {'mine': 'I fucking love mining !', \
-					'tavern': 'Never noticed this tavern before', \
-					'fight': 'I feel like... I... BEZEEERK !'}
+		decisions = {'mine': [("Mine", 30), ('Fight', 10), ('Tavern', 5)], \
+					'tavern': [("Mine", 10), ('Fight', 10), ('Tavern', 50)], \
+					'fight': [("Mine", 15), ('Fight', 30), ('Tavern', 10)]}
 		
 		walkable = []
 		path_to_goal = []
