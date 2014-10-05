@@ -58,7 +58,6 @@ http://www.vindinium.org/
 	but only a random AI. However it would run fine as is but would only win by mistake :)
 	
 	Also note that in many points this code is far from perfect or even far from good.
-	Also note that in many points this code is far from perfect or even far from good.
 	Don't hesitate to contribute, improve, refactor or even simply trash it !
 	
 	
