@@ -435,7 +435,7 @@ class tui:
 
 	def display_log(self):
 		""" Display log entries """
-		if self.map_win:
+		if self.log_win:
 			i = 0
 			for entry in self.log_entries:
 				attr = 0
