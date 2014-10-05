@@ -16,6 +16,7 @@ class Curses_ui_bot:
 		# If false UI will not spawn and log
 		# will be printed to the console
 		self.use_ui = True
+		self.running = True
 		
 		self.gui = None
 		self.state = None
@@ -127,7 +128,7 @@ class Curses_ui_bot:
 		################################################################
 		# Uncomment the following line to append log
 		
-		self._print(self.game.hero.pos, self.hero_move)
+		self._print(self.game.hero.pos, self.hero_move, self.running)
 		
 		################################################################
 		# /Log

@@ -114,10 +114,12 @@ def start(server_url, key, mode, turns, bot):
 				if line.strip() == "q":
 					RUNNING = False
 					bot.gui.quit_ui()
+					bot.running = False
 					break
 				elif line.strip() == "p":
 					bot.gui.pause()
-			direction = bot.move(state)
+			if bot.running:
+				direction = bot.move(state)
 		except Exception, e:
 			_print("Error at client.start:", str(e))
 			_print("If your code is not responsible of this error, please report this error to doug.letough@free.fr.")
@@ -156,13 +158,10 @@ if __name__ == "__main__":
 		game_num = 0
 		for i in range(number_of_games):
 			# start a new game
-			start(server_url, key, mode, number_of_turns, my_bot)
-			if my_bot.gui and my_bot.gui.running and i < (number_of_games - 1):
-				# EXTRA BALL ! Same player shoot again :)
-				_print("Game finished : "+str(i+1)+"/"+str(number_of_games))
-				#~ my_bot.gui.quit_ui()
+			if my_bot.running :
+				start(server_url, key, mode, number_of_turns, my_bot)
+				_print("Game finished: "+str(i+1)+"/"+str(number_of_games))
 			game_num += 1
 
 		if my_bot.gui.running:
-			_print("Game finished : "+str(game_num)+"/"+str(number_of_games))
 			my_bot.gui.ask_quit()
