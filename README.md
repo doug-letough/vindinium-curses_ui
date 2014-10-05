@@ -22,14 +22,14 @@ http://www.vindinium.org/
 2 - Content :
 -------------
 
- - bot.py				The bot source code
- - client.py			The client source code used to connect to game server
- - game.py				Source code used to process data sent by the server
- - ui.py				The curses U.I. source code
- - ai.py				The random A.I. This is where to put your A.I code
- - README.md			This file
- - LICENCE.txt			A copy of the W.T.F.P.L
- - curses_ui_bot.png	A screenshot of the running U.I
+ - bot.py               The bot source code
+ - client.py            The client source code used to connect to game server
+ - game.py              Source code used to process data sent by the server
+ - ui.py                The curses U.I. source code
+ - ai.py                The random A.I. This is where to put your A.I code
+ - README.md            This file
+ - LICENCE.txt          A copy of the W.T.F.P.L
+ - curses_ui_bot.png    A screenshot of the running U.I
 
 3 - How to make it work :
 -------------------------
@@ -57,7 +57,8 @@ http://www.vindinium.org/
 	Note : The code provided here do NOT contains any AI or path-finding code 
 	but only a random AI. However it would run fine as is but would only win by mistake :)
 	
-	Also note that in many points this code is far for perfect or even far from good.
+	Also note that in many points this code is far from perfect or even far from good.
+	Also note that in many points this code is far from perfect or even far from good.
 	Don't hesitate to contribute, improve, refactor or even simply trash it !
 	
 	
