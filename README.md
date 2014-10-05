@@ -28,8 +28,9 @@ http://www.vindinium.org/
  - client.py            The client source code used to connect to game server
  - curses_ui_bot.png    A screenshot of the running U.I
  - game.py              Source code used to process data sent by the server
- - LICENCE.txt          A copy of the W.T.F.P.L
+ - LICENCE.TXT          A copy of the W.T.F.P.L
  - README.md            This file
+ - TODO.TXT             The famous TODO list
  - ui.py                The curses U.I. source code
 
 3 - How to make it work :
