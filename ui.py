@@ -83,6 +83,37 @@ class tui:
 		self.stdscr.keypad(1)
 		#- /screen init ----
 		
+		# Draw windows
+		self.draw_data_win()
+		self.draw_path_win()
+		self.draw_log_win()
+		self.draw_help_win()
+		self.draw_players_win()
+		curses.panel.update_panels()
+		curses.doupdate()
+		
+#- /init ---------------------------------------------------------------		
+
+	def refresh(self):
+		""" Refresh all windows """
+		self.stdscr.noutrefresh()
+		self.data_win.noutrefresh()
+		if self.map_win:
+			self.map_win.noutrefresh()
+		if self.path_win:
+			self.path_win.noutrefresh()
+		if self.log_win:
+			self.log_win.noutrefresh()
+		if self.help_win:
+			self.help_win.noutrefresh()
+		if self.players_win:
+			self.players_win.noutrefresh()
+		curses.doupdate()
+
+#- Draw windows --------------------------------------------------------
+
+	def draw_data_win(self):
+		""" Draw main data window """
 		self.data_win = curses.newwin(self.DATA_H, self.DATA_W, self.DATA_Y, self.DATA_X)
 		self.data_win.box()
 		self.data_pan = curses.panel.new_panel(self.data_win)
@@ -121,32 +152,18 @@ class tui:
 					if y*2 - 7 > 7:
 						self.data_win.addch(y+2, 22, curses.ACS_PLUS)
 				y += 2
-		
-		self.data_win.addch(8, 22, curses.ACS_TTEE)						
-
-	def refresh(self):
-		self.stdscr.noutrefresh()
-		self.data_win.noutrefresh()
-		if self.map_win:
-			self.map_win.noutrefresh()
-		if self.path_win:
-			self.path_win.noutrefresh()
-		if self.log_win:
-			self.log_win.noutrefresh()
-		if self.help_win:
-			self.help_win.noutrefresh()
-		if self.players_win:
-			self.players_win.noutrefresh()
-		curses.doupdate()
+		self.data_win.addch(8, 22, curses.ACS_TTEE)
 
 
 	def draw_log_win(self):
+		""" Draw log window """
 		self.stdscr.addstr(self.LOG_Y - 1, self.LOG_X + 1, "Log", curses.A_BOLD)	
 		self.log_win = curses.newwin(self.LOG_H, self.LOG_W, self.LOG_Y, self.LOG_X)
 		self.log_win.box()
 		self.log_pan = curses.panel.new_panel(self.log_win)
 		
 	def draw_path_win(self):
+		""" Draw path & heuristic window """
 		self.stdscr.addstr(self.PATH_Y -1 , self.PATH_X +1, "Path and heuristic", curses.A_BOLD)
 		self.path_win = curses.newwin(self.PATH_H, self.PATH_W, self.PATH_Y, self.PATH_X)
 		self.path_win.box()
@@ -162,6 +179,7 @@ class tui:
 		self.path_win.addch(4, 13, curses.ACS_BTEE)	
 
 	def draw_help_win(self):
+		""" Draw help window """
 		self.help_win = curses.newwin(self.HELP_H, self.HELP_W, self.HELP_Y, self.HELP_X)
 		self.help_pan = curses.panel.new_panel(self.help_win)
 		self.help_win.bkgd(curses.color_pair(4) + curses.A_REVERSE)	
@@ -171,6 +189,7 @@ class tui:
 		self.help_win.addstr(0, 9, "ause")
 
 	def draw_players_win(self):
+		""" Draw players window """
 		self.stdscr.addstr(self.PLAYERS_Y - 1, self.PLAYERS_X + 1, "Players", curses.A_BOLD)
 		self.players_win = curses.newwin(self.PLAYERS_H, self.PLAYERS_W, self.PLAYERS_Y, self.PLAYERS_X)
 		self.players_win.box()
@@ -213,16 +232,7 @@ class tui:
 	def draw_map(self, board_map, path):
 		""" Draw the map"""
 		board_size = len(board_map)
-	
-		if not self.path_win :
-			self.draw_path_win()
-		if not self.log_win :
-			self.draw_log_win()
-		if not self.help_win :
-			self.draw_help_win()
-		if not self.players_win :
-			self.draw_players_win()
-		
+
 		self.map_win = curses.newwin(board_size+2, board_size+2, self.MAP_Y, self.MAP_X)
 		self.map_pan = curses.panel.new_panel(self.map_win)
 
@@ -262,11 +272,11 @@ class tui:
 			y = y +1
 
 			
-# /MAP -----------------------------------------------------------------				
+# / Draw window --------------------------------------------------------				
 			
 
 
-# DATA -----------------------------------------------------------------
+# Diplay functions -----------------------------------------------------
 
 	# Following methods are used to display data at
 	# the good place. Names are explicit.
@@ -452,7 +462,7 @@ class tui:
 		
 	def ask_quit(self):
 		""" What don't you understand in 'press q to exit' ? ;-) """
-		self.help_win.clear()
+		self.help_win.hline(0, 1, " ", 98)
 		self.help_win.addstr(0, 1, "Press 'q' to quit.")
 		curses.doupdate()
 
