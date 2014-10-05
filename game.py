@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+# This is a no purpose comment
 
 class Hero:
 	""" The Hero object """
