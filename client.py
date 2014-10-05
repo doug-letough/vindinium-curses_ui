@@ -217,7 +217,6 @@ class Client:
 
 		# Clean up the session
 		self.session.close()
-		self.gui.refresh()
 
 if __name__ == "__main__":
 	if (len(sys.argv) < 4):
