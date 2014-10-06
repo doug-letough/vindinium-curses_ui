@@ -446,17 +446,23 @@ class tui:
 	def clear_data_cell(self, pos, length):
 		self.data_win.hline(pos[0], pos[1],  " ", length)
 
-	def move_time_cursor(self, row):
-		self.append_log(str(row)+" "+str(self.TIME_W))
+	def move_time_cursor(self, pos):
 		self.time_win.box()
-		self.time_win.hline(1, 1,  " ", self.TIME_W - 2)
-		if row > 1:
-			self.time_win.addch(0, row - 1, curses.ACS_TTEE)
-			self.time_win.addch(2, row - 1 , curses.ACS_BTEE)
-		if row < self.TIME_W - 2 :
-			self.time_win.addch(0, row + 1, curses.ACS_TTEE)
-			self.time_win.addch(2, row + 1 , curses.ACS_BTEE)
-		self.time_win.addstr(1, row, " ", curses.color_pair(4) + curses.A_REVERSE)
+		self.time_win.hline(1, 1,  curses.ACS_BLOCK, self.TIME_W - 2)
+		if pos < 1 :
+			pos = 1
+		if pos > self.TIME_W - 2 :
+			pos = self.TIME_W - 2
+		if pos > 1 :
+			self.time_win.addch(0, pos - 1, curses.ACS_TTEE)
+			self.time_win.addch(1, pos - 1 , curses.ACS_VLINE)
+			self.time_win.addch(2, pos - 1 , curses.ACS_BTEE)
+		if pos < self.TIME_W - 2:
+			self.time_win.addch(0, pos + 1, curses.ACS_TTEE)
+			self.time_win.addch(1, pos + 1 , curses.ACS_VLINE)
+			self.time_win.addch(2, pos + 1 , curses.ACS_BTEE)
+		self.time_win.addstr(1, pos, " ", curses.color_pair(4) + curses.A_REVERSE)
+		
 
 # LOG ------------------------------------------------------------------
 
@@ -497,7 +503,9 @@ class tui:
 	def ask_quit(self):
 		""" What don't you understand in 'press q to exit' ? ;-) """
 		self.help_win.hline(0, 1, " ", 98)
-		self.help_win.addstr(0, 1, "Press 'q' to quit.")
+		self.help_win.addstr(0, 1, "Press ")
+		self.help_win.addstr(0, 7, "Q", curses.A_BOLD + curses.A_STANDOUT)
+		self.help_win.addstr(0, 8," to quit.")
 		curses.doupdate()
 
 		k = self.help_win.getkey()

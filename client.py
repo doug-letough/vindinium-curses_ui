@@ -76,8 +76,6 @@ class Client:
 			
 			# Move cursor along the time line
 			cursor_pos = int(float(self.gui.TIME_W) / self.bot.game.max_turns * self.bot.game.turn)
-			if cursor_pos == 0 :
-				cursor_pos += 1
 			self.gui.move_time_cursor(cursor_pos)
 			
 			# Finally display selected move
@@ -221,6 +219,8 @@ class Client:
 			except Exception, e:
 				self._print("Error at client.start:", str(e))
 				self._print("If your code is not responsible of this error, please report this error to doug.letough@free.fr.")
+				self.gui.pause()
+				self.gui.ask_quit()
 
 
 			# Send the move and receive the updated game state
