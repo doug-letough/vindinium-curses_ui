@@ -17,6 +17,8 @@ class Client:
 		self.session = None
 		self.state = None
 		
+		self.server_url = "http://vindinium.org"
+		
 		self.running = True
 		self.bot = Curses_ui_bot() # our bot
 		
@@ -24,7 +26,40 @@ class Client:
 	def start_ui(self):
 		""" Start the curses UI """
 		self.gui = ui.tui()
-		
+		self.gui.draw_menu_window()
+		choice = self.gui.ask_menu()
+		if choice =='1':
+			# Setup game
+			choice = self.gui.ask_mode()
+			if choice == '1':
+				# Arena mode
+				game_mode = "arena"
+				number_of_games = self.gui.ask_number_games(1)
+				number_of_turns = 300
+			elif mode == '2':
+				# Training mode
+				game_mode = "training"
+				number_of_turns = self.gui.ask_number_turns(100)
+				map_name = self.gui.ask_map()
+			
+			server_url = self.gui.ask_server(self.server_url)
+			key = self.gui.ask_key()
+			
+			# Start game U.I
+			self.gui.draw_game_windows()
+			# Launch game
+			client.play(number_of_games, number_of_turns, server_url, key, game_mode)
+			 
+		elif choice =='2':
+			# Load game from file
+			pass
+		elif choice =='3':
+			# Load game from URL
+			pass
+		elif choice =='4':
+			# quit
+			self.gui.quit_ui()
+			exit(0)	
 
 	def display_game(self, game):
 		# Display game data on the U.I
@@ -111,8 +146,9 @@ class Client:
 				  
 		if self.gui and self.gui.running:
 			# bot has a gui so we add this entries to its log panel
-			self.gui.append_log(printable)
-			self.gui.log_win.refresh()
+			if self.gui.log_win:
+				self.gui.append_log(printable)
+				self.gui.log_win.refresh()
 		else:
 			print printable
 				
@@ -127,7 +163,7 @@ class Client:
 				self._print("Game finished: "+str(i+1)+"/"+str(number_of_games))
 			game_num += 1
 
-		if self.gui.running:
+		if self.gui.running and self.gui.help_win:
 			self.gui.ask_quit()
 
 
@@ -217,10 +253,12 @@ class Client:
 					self.display_game(self.bot.game)
 					
 			except Exception, e:
-				self._print("Error at client.start:", str(e))
-				self._print("If your code is not responsible of this error, please report this error to doug.letough@free.fr.")
-				self.gui.pause()
-				self.gui.ask_quit()
+				if self.gui.log_win:
+					self._print("Error at client.start:", str(e))
+					self._print("If your code is not responsible of this error, please report this error to doug.letough@free.fr.")
+					self.gui.pause()
+				if self.gui.help_win:
+					self.gui.ask_quit()
 
 
 			# Send the move and receive the updated game state
@@ -231,10 +269,18 @@ class Client:
 		self.session.close()
 
 if __name__ == "__main__":
-	if (len(sys.argv) < 4):
+	server_url = "http://vindinium.org"
+	
+	if len(sys.argv) == 1:
+		# Go for interactive setup
+		client = Client()
+		client.start_ui()
+	
+	elif len(sys.argv) < 3 or sys.argv[1] == "--help":
 		print("Usage: %s <key> <[training|arena]> <number-of-games|number-of-turns> [server-url]" % (sys.argv[0]))
 		print('Example: %s mySecretKey training 20' % (sys.argv[0]))
-	else:
+		exit(0)
+	elif len(sys.argv) > 3:
 		key = sys.argv[1]
 		mode = sys.argv[2]
 
@@ -247,9 +293,11 @@ if __name__ == "__main__":
 
 		if(len(sys.argv) == 5):
 			server_url = sys.argv[4]
-		else:
-			server_url = "http://vindinium.org"
-
+		
+		# Go for playing according to sys.argv
+		# Do not use interactive setup
 		client = Client()
-		client.start_ui()
+		client.gui = ui.tui()
+		client.gui.draw_game_windows()
 		client.play(number_of_games, number_of_turns, server_url, key, mode)
+

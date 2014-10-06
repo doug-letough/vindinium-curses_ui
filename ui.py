@@ -49,13 +49,20 @@ class tui:
 		self.TIME_X = 0
 		self.TIME_H = 0
 		self.TIME_W = 0
+		
+		self.MENU_Y = 0
+		self.MENU_X = 0
+		self.MENU_H = 15
+		self.MENU_W = 0
 	
+		self.data_win = None
 		self.map_win = None
 		self.path_win = None
 		self.log_win = None
 		self.help_win = None
 		self.players_win = None
 		self.time_win = None
+		self.menu_win = None
 		
 		self.log_entries = []
 		
@@ -77,7 +84,8 @@ class tui:
 			try:
 				#~ # Try resizing terminal
 				curses.resizeterm(MIN_LINES, MIN_COLS)
-				screen_y, screen_x = self.stdscr.getmaxyx() 
+				screen_y, screen_x = self.stdscr.getmaxyx()
+				self.MENU_W = screen_x
 				if screen_y < MIN_LINES or screen_x < MIN_COLS:
 					raise Exception()
 			except Exception as e:
@@ -90,14 +98,6 @@ class tui:
 		self.stdscr.keypad(1)
 		#- /screen init ----
 		
-		# Draw windows
-		self.draw_data_win()
-		self.draw_path_win()
-		self.draw_log_win()
-		self.draw_help_win()
-		self.draw_players_win()
-		curses.panel.update_panels()
-		curses.doupdate()
 		
 #- /init ---------------------------------------------------------------		
 
@@ -117,9 +117,21 @@ class tui:
 			self.players_win.noutrefresh()
 		if self.time_win:
 			self.time_win.noutrefresh()
+		if self.menu_win:
+			self.time_win.noutrefresh()
 		curses.doupdate()
 
 #- Draw windows --------------------------------------------------------
+
+	def draw_game_windows(self):
+		""" Draw the windows needed for the game """
+		self.draw_data_win()
+		self.draw_path_win()
+		self.draw_log_win()
+		self.draw_help_win()
+		self.draw_players_win()
+		curses.panel.update_panels()
+		curses.doupdate()
 
 	def draw_data_win(self):
 		""" Draw main data window """
@@ -250,16 +262,18 @@ class tui:
 	def draw_map(self, board_map, path):
 		""" Draw the map"""
 		board_size = len(board_map)
+		self.MAP_H = board_size
+		self.MAP_W = board_size
 		
 		if not self.map_win :
+			self.stdscr.addstr(self.MAP_Y - 1, self.MAP_X + 1, "Map ("+str(board_size)+"X"+str(board_size)+")", curses.A_BOLD)
 			self.map_win = curses.newwin(board_size+2, board_size+2, self.MAP_Y, self.MAP_X)
 			self.map_pan = curses.panel.new_panel(self.map_win)
-
-			self.stdscr.addstr(self.MAP_Y - 1, self.MAP_X + 1, "Map ("+str(board_size)+"X"+str(board_size)+")", curses.A_BOLD)
-			self.MAP_H = board_size
-			self.MAP_W = board_size
-		
-		self.map_win.erase()
+			
+		else:
+			self.map_win.erase()
+			self.map_win.resize(board_size+2, board_size+2)
+			
 		self.map_win.box()
 		
 		if not self.time_win:
@@ -446,6 +460,8 @@ class tui:
 	def clear_data_cell(self, pos, length):
 		self.data_win.hline(pos[0], pos[1],  " ", length)
 
+# TIME CURSOR ----------------------------------------------------------
+
 	def move_time_cursor(self, pos):
 		self.time_win.box()
 		self.time_win.hline(1, 1,  curses.ACS_BLOCK, self.TIME_W - 2)
@@ -497,6 +513,42 @@ class tui:
 				self.log_win.addstr(i+1, 1, entry, attr)
 				i += 1
 
+# MENU -----------------------------------------------------------------
+
+	def draw_menu_window(self):
+		""" Draw the windows needed for the game """
+		self.menu_win = curses.newwin(self.MENU_H, self.MENU_W, self.MENU_Y, self.MENU_X)
+		self.menu_win.box()
+		self.menu_pan = curses.panel.new_panel(self.menu_win)
+		title1 = "__     ___           _ _       _"
+		title2 = "\ \   / (_)_ __   __| (_)_ __ (_)_   _ _ __ ___"
+		title3 = " \ \ / /| | '_ \ / _` | | '_ \| | | | | '_ ` _ \\"
+		title4 = "  \ V / | | | | | (_| | | | | | | |_| | | | | | |"
+		title5 = "   \_/  |_|_| |_|\__,_|_|_| |_|_|\__,_|_| |_| |_|"
+		
+		self.menu_win.addstr(1, 2, title1, curses.A_BOLD + curses.color_pair(4))
+		self.menu_win.addstr(2, 2, title2, curses.A_BOLD + curses.color_pair(4))
+		self.menu_win.addstr(3, 2, title3, curses.A_BOLD + curses.color_pair(4))
+		self.menu_win.addstr(4, 2, title4, curses.A_BOLD + curses.color_pair(4))
+		self.menu_win.addstr(5, 2, title5, curses.A_BOLD + curses.color_pair(4))
+		
+		self.menu_win.addstr(7, 8, "Welcome to the Vindinium curses client", curses.A_BOLD + curses.A_UNDERLINE )
+		self.menu_win.addstr(9, 3, "Please, choose an option:", curses.A_BOLD)
+		self.menu_win.addstr(9, 30, "1", curses.A_BOLD)
+		self.menu_win.addstr(9, 31, " - Setup & play game")
+		self.menu_win.addstr(10, 30, "2", curses.A_BOLD)
+		self.menu_win.addstr(10, 31, " - Load game from file")
+		self.menu_win.addstr(11, 30, "3", curses.A_BOLD)
+		self.menu_win.addstr(11, 31, " - Load game from URL")
+		self.menu_win.addstr(12, 30, "4", curses.A_BOLD)
+		self.menu_win.addstr(12, 31, " - Quit")
+
+	def ask_menu(self):
+		""" Return the inputed value """
+		k = self.menu_win.getkey()
+		self.menu_win.clear()
+		self.menu_pan.bottom()
+		return k
 
 # QUIT -----------------------------------------------------------------
 		
@@ -523,7 +575,7 @@ class tui:
 		curses.curs_set(1)
 		curses.endwin()
 		self.running = False
-		
+	
 # Pause U.I ----------------------------------------------------------------
 
 	def pause(self):
