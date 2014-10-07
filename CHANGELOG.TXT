@@ -1,3 +1,6 @@
+2014-10-08:
+	- Added input checking in setup menu
+
 2014-10-06:
 	- Added time line for future player
 	- Added setup menu

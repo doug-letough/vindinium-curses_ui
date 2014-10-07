@@ -16,51 +16,49 @@ class Client:
 		self.gui = None
 		self.session = None
 		self.state = None
-		
-		self.server_url = "http://vindinium.org"
-		
+				
 		self.running = True
 		self.bot = Curses_ui_bot() # our bot
 		
 	
 	def start_ui(self):
 		""" Start the curses UI """
-		self.gui = ui.tui()
-		self.gui.draw_menu_window()
-		choice = self.gui.ask_menu()
+		self.gui = ui.tui()		
+		choice = self.gui.ask_main_menu()
+		number_of_games = 1
+		number_of_turns = 300
 		if choice =='1':
 			# Setup game
-			choice = self.gui.ask_mode()
+			choice = self.gui.ask_game_mode()
 			if choice == '1':
 				# Arena mode
 				game_mode = "arena"
-				number_of_games = self.gui.ask_number_games(1)
-				number_of_turns = 300
-			elif mode == '2':
+				number_of_games = int(self.gui.ask_number_games().strip(chr(0)))
+			elif choice == '2':
 				# Training mode
 				game_mode = "training"
-				number_of_turns = self.gui.ask_number_turns(100)
+				number_of_turns = int(self.gui.ask_number_turns().strip(chr(0)))
 				map_name = self.gui.ask_map()
-			
-			server_url = self.gui.ask_server(self.server_url)
-			key = self.gui.ask_key()
+
+			server_url = self.gui.ask_server_url(game_mode).strip(chr(0))
+			key = self.gui.ask_key(game_mode).strip(chr(0))
 			
 			# Start game U.I
 			self.gui.draw_game_windows()
 			# Launch game
-			client.play(number_of_games, number_of_turns, server_url, key, game_mode)
+			self.play(number_of_games, number_of_turns, server_url, key, game_mode)
 			 
 		elif choice =='2':
 			# Load game from file
-			pass
+			game_file_path = self.gui.ask_game_file_path()
 		elif choice =='3':
 			# Load game from URL
-			pass
+			game_file_url = self.gui.ask_game_file_url()
 		elif choice =='4':
 			# quit
 			self.gui.quit_ui()
 			exit(0)	
-
+			
 	def display_game(self, game):
 		# Display game data on the U.I
 		
@@ -73,7 +71,7 @@ class Client:
 			
 			# Use the following methods to display datas
 			# within the interface
-			self.gui.display_url(self.state['viewUrl'])
+			self.gui.display_url(self.bot.game.url)
 			self.gui.display_bot_name(self.bot.game.hero.name)		
 			self.gui.display_last_move(self.bot.hero_last_move)
 			self.gui.display_pos(self.bot.game.hero.pos)
@@ -81,7 +79,7 @@ class Client:
 			self.gui.display_last_life(self.bot.last_life)
 			self.gui.display_life(self.bot.game.hero.life)
 			self.gui.display_last_action(self.bot.last_action)
-			self.gui.display_turn(self.bot.game.turn/4, self.bot.game.max_turns/4)
+			self.gui.display_turn((self.bot.game.turn/4)-1, self.bot.game.max_turns/4)
 			self.gui.display_elo(self.bot.game.hero.elo)
 			self.gui.display_gold(self.bot.game.hero.gold)
 			self.gui.display_last_gold(self.bot.last_gold)
@@ -152,7 +150,7 @@ class Client:
 		else:
 			print printable
 				
-	
+
 	def play(self, number_of_games, number_of_turns, server_url, key, mode):
 		""" Play all games """		
 		game_num = 0
@@ -165,7 +163,6 @@ class Client:
 
 		if self.gui.running and self.gui.help_win:
 			self.gui.ask_quit()
-
 
 
 	def get_new_game_state(self, session, server_url, key, mode='training', number_of_turns = 10):
@@ -185,7 +182,8 @@ class Client:
 		if(r.status_code == 200):
 			return r.json()
 		else :
-			self._print("Error when creating the game")
+			self._print("Error when creating the game:", str(r.status_code))
+			self.running = False
 			self._print(r.text)
 			
 		
@@ -201,15 +199,20 @@ class Client:
 				return r.json()
 			else :
 				self._print("Error HTTP ", str(r.status_code), " : ", r.text)
+				self.running = False
 				return {'game': {'finished': True}}
 				 
 		except requests.exceptions.RequestException as e:
 			self._print("Error at client.move;", str(e))
+			self.running = False
 			return {'game': {'finished': True}}
 	
 
 	def is_game_over(self, state):
-		return state['game']['finished']
+		try:
+			return state['game']['finished']
+		except:
+			return True
 
 
 	def start_game(self, server_url, key, mode, turns, bot):
@@ -222,48 +225,55 @@ class Client:
 		if(mode=='arena'):
 			self._print ('Connected and waiting for other players to join...')
 
-		# Get the initial state
-		self.state = self.get_new_game_state(self.session, server_url, key, mode, turns)
-				
-		self._print("Playing at: " + self.state['viewUrl'])
+		try:
+			# Get the initial state
+			self.state = self.get_new_game_state(self.session, server_url, key, mode, turns)
+			self._print("Playing at: " + self.state['viewUrl'])
+		except Exception as e:
+			self._print("Error: Please verify your settings.")
+			self._print("Settings:", server_url, key, mode, turns)
+			self._print("Game state:", self.state)
+			self.running = False
+			self.gui.ask_quit()
+			quit(0)
 
 		# Default move is no move !
 		direction = "Stay"
 			
-		while not self.is_game_over(self.state) and self.running:
-			# Choose a move
-			# Remove the try/except exception trap to help debugging 
-			# your bot, but keep the "direction = bot.move(state)" line.
-			
-			self.start = time.time()
-			
-			try:
-				while sys.stdin in select.select([sys.stdin], [], [], 0)[0]:
-					line = sys.stdin.read(1)
-					if line.strip() == "q":
-						self.running = False
-						self.gui.quit_ui()
-						self.bot.running = False
-						break
-					elif line.strip() == "p":
-						self.gui.pause()
+		for i in range(turns + 1):
+			if self.running:
+				# Choose a move				
+				self.start = time.time()
+				
+				try:
+					while sys.stdin in select.select([sys.stdin], [], [], 0)[0]:
+						line = sys.stdin.read(1)
+						if line.strip() == "q":
+							self.running = False
+							self.gui.quit_ui()
+							self.bot.running = False
+							break
+						elif line.strip() == "p":
+							self.gui.pause()
+							
+					if self.bot.running:
+						direction = self.bot.move(self.state)
+						self.display_game(self.bot.game)
 						
-				if self.bot.running:
-					direction = self.bot.move(self.state)
-					self.display_game(self.bot.game)
-					
-			except Exception, e:
-				if self.gui.log_win:
-					self._print("Error at client.start:", str(e))
-					self._print("If your code is not responsible of this error, please report this error to doug.letough@free.fr.")
-					self.gui.pause()
-				if self.gui.help_win:
-					self.gui.ask_quit()
+				except Exception, e:
+					if self.gui.log_win:
+						self._print("Error at client.start_game:", str(e))
+						self._print("If your code or your settings are not responsible of this error, please report this error to:")
+						self._print("doug.letough@free.fr.")
+						self.gui.pause()
+						self.running = False
+					if self.gui.help_win:
+						self.gui.ask_quit()
 
-
-			# Send the move and receive the updated game state
-			self.url = self.state['playUrl']
-			self.state = self.send_move(self.session, self.url, direction)
+				if not self.is_game_over(self.state):
+					# Send the move and receive the updated game state
+					self.url = self.state['playUrl']
+					self.state = self.send_move(self.session, self.url, direction)
 
 		# Clean up the session
 		self.session.close()
