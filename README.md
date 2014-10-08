@@ -65,5 +65,6 @@ http://www.vindinium.org/
     but only a random AI. However it would run fine as is but would only win by mistake :)   
 
 
-
+![Curses U.I Setup menu](vindinium_curses_ui_menu.png)
+![Curses U.I running a game](vindinium_curses_ui.png)
 
