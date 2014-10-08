@@ -60,10 +60,10 @@ http://www.vindinium.org/
             In this case the setup menu will be displayed and will ask you
             some basic infos to get connected to the server.
 
- *********************************************************************************************
- *   Note : The code provided here do NOT contains any AI or path-finding code               *
- *  but only a random AI. However it would run fine as is but would only win by mistake :)   *
- *********************************************************************************************   
+
+    Note : The code provided here do NOT contains any AI or path-finding code               
+    but only a random AI. However it would run fine as is but would only win by mistake :)   
+
 
 
 
