@@ -33,15 +33,15 @@ class Client:
 			if choice == '1':
 				# Arena mode
 				game_mode = "arena"
-				number_of_games = int(self.gui.ask_number_games().strip(chr(0)))
+				number_of_games = self.gui.ask_number_games()
 			elif choice == '2':
 				# Training mode
 				game_mode = "training"
-				number_of_turns = int(self.gui.ask_number_turns().strip(chr(0)))
+				number_of_turns = self.gui.ask_number_turns()
 				map_name = self.gui.ask_map()
 
-			server_url = self.gui.ask_server_url(game_mode).strip(chr(0))
-			key = self.gui.ask_key(game_mode).strip(chr(0))
+			server_url = self.gui.ask_server_url(game_mode)
+			key = self.gui.ask_key(game_mode)
 			
 			# Start game U.I
 			self.gui.draw_game_windows()
@@ -223,7 +223,7 @@ class Client:
 		self.session = requests.session()
 
 		if(mode=='arena'):
-			self._print ('Connected and waiting for other players to join...')
+			self._print ('Connecting and waiting for other players to join...')
 
 		try:
 			# Get the initial state
@@ -232,6 +232,7 @@ class Client:
 		except Exception as e:
 			self._print("Error: Please verify your settings.")
 			self._print("Settings:", server_url, key, mode, turns)
+			self._print("Settings:", len(server_url), len(key), len(mode), type(turns))
 			self._print("Game state:", self.state)
 			self.running = False
 			self.gui.ask_quit()

@@ -104,6 +104,8 @@ class tui:
 
 	def refresh(self):
 		""" Refresh all windows """
+		self.stdscr.addstr(self.DATA_Y -1 , self.DATA_X +1, "Game", curses.A_BOLD)
+		self.stdscr.addstr(self.PLAYERS_Y - 1, self.PLAYERS_X + 1, "Players", curses.A_BOLD)
 		self.stdscr.noutrefresh()
 		self.data_win.noutrefresh()
 		if self.map_win:
@@ -665,7 +667,7 @@ class tui:
 			curses.curs_set(1)
 			num_game = text_box.edit(self.check_input)
 			curses.curs_set(0)
-		return num_game
+		return int(str(num_game).strip(chr(0)).strip())
 
 		
 	def ask_number_turns(self):
@@ -688,7 +690,7 @@ class tui:
 			curses.curs_set(1)
 			num_turns = text_box.edit(self.check_input)
 			curses.curs_set(0)
-		return num_turns
+		return int(str(num_turns).strip(chr(0)).strip())
 		
 	def ask_server_url(self, game_mode):
 		""" Ask for server url"""
@@ -716,7 +718,7 @@ class tui:
 			curses.curs_set(1)
 			server_url = text_box.edit(self.check_input)
 			curses.curs_set(0)
-		return server_url
+		return str(server_url).strip(chr(0)).strip()
 		
 	def ask_key(self, game_mode):
 		""" Ask for player key """
@@ -742,7 +744,7 @@ class tui:
 			curses.curs_set(1)
 			player_key = text_box.edit(self.check_input)
 			curses.curs_set(0)
-		return player_key
+		return str(player_key).strip(chr(0)).strip()
 
 	def ask_game_file_url(self):
 		""" Ask for game file url"""
