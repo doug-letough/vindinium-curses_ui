@@ -65,6 +65,5 @@ http://www.vindinium.org/
  *  but only a random AI. However it would run fine as is but would only win by mistake :)   *
  *********************************************************************************************   
 
-    
 
 

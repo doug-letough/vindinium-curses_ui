@@ -289,6 +289,7 @@ if __name__ == "__main__":
     
     elif len(sys.argv) < 3 or sys.argv[1] == "--help":
         print("Usage: %s <key> <[training|arena]> <number-of-games|number-of-turns> [server-url]" % (sys.argv[0]))
+        print("or: %s " % (sys.argv[0]))
         print('Example: %s mySecretKey training 20' % (sys.argv[0]))
         exit(0)
     elif len(sys.argv) > 3:
