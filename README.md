@@ -22,16 +22,17 @@ http://www.vindinium.org/
 2 - Content :
 -------------
 
- - ai.py                The random A.I. This is where to put your A.I code
- - bot.py               The bot object source code. Collects data processed.
- - CHANGELOG.TXT        The changelog, you may read it.
- - client.py            The client source code used to connect to game server
- - curses_ui_bot.png    A screenshot of the running U.I
- - game.py              Source code used to process data sent by the server
- - LICENCE.TXT          A copy of the W.T.F.P.L
- - README.md            This file
- - TODO.TXT             The famous TODO list
- - ui.py                The curses U.I. source code
+ - ai.py                         The random A.I. This is where to put your A.I code
+ - bot.py                        The bot object source code. Collects data processed.
+ - CHANGELOG.TXT                 The changelog, you may read it.
+ - client.py                     The client source code used to connect to game server
+ - vindinium_curses_ui.png       A screenshots of the running U.I
+ - vindinium_curses_ui_menu.png  Some screenshots of the setup menus
+ - game.py                       Source code used to process data sent by the server
+ - LICENCE.TXT                   A copy of the W.T.F.P.L
+ - README.md                     This file
+ - TODO.TXT                      The famous TODO list
+ - ui.py                         The curses U.I. source code
 
 3 - How to make it work :
 -------------------------
