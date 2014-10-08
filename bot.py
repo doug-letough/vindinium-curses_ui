@@ -38,7 +38,7 @@ class Curses_ui_bot:
 		self.state = state
 		self.game = Game(self.state)
 		################################################################
-		# Put your call to AI code
+		# Put your call to AI code here
 		################################################################
 		
 		

@@ -1,12 +1,13 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import curses, curses.panel
+import curses, curses.panel, curses.textpad
 import sys
 import re
+import urlparse
 
 # Minimal terminal size
-MIN_LINES = 50
+MIN_LINES = 48
 MIN_COLS = 150
 
 class tui:
@@ -40,16 +41,30 @@ class tui:
 		self.LOG_H = 12
 		self.LOG_W = self.DATA_W + self.PLAYERS_W + 2
 
-		self.HELP_X = 1
 		self.HELP_Y = self.LOG_Y + self.LOG_H - 2
+		self.HELP_X = 1
 		self.HELP_H = 1
 		self.HELP_W = self.LOG_W - 2
+		
+		self.TIME_Y = self.LOG_Y + self.LOG_H + 2
+		self.TIME_X = 0
+		self.TIME_H = 0
+		self.TIME_W = 0
+		
+		self.MENU_Y = 0
+		self.MENU_X = 0
+		self.MENU_H = 20
+		self.MENU_W = 0
 	
+		self.data_win = None
 		self.map_win = None
 		self.path_win = None
 		self.log_win = None
 		self.help_win = None
 		self.players_win = None
+		self.time_win = None
+		self.menu_win = None
+		
 		self.log_entries = []
 		
 		self.stdscr = curses.initscr()
@@ -67,14 +82,15 @@ class tui:
 		# check for minimal screen size
 		screen_y, screen_x = self.stdscr.getmaxyx() 
 		if screen_y < MIN_LINES or screen_x < MIN_COLS:
-			try:
-				#~ # Try resizing terminal
-				curses.resizeterm(MIN_LINES, MIN_COLS)
-				screen_y, screen_x = self.stdscr.getmaxyx() 
-				if screen_y < MIN_LINES or screen_x < MIN_COLS:
-					raise Exception()
-			except Exception as e:
-				self.term_error(e)
+			#~ # Try resizing terminal
+			curses.resizeterm(MIN_LINES, MIN_COLS)
+			if not curses.is_term_resized(MIN_LINES, MIN_COLS):
+				print "Unable to change your terminal size. Your terminal must be at least", \
+						MIN_LINES, "lines and", MIN_COLS, "columns and it actually has", \
+						screen_y, "lines and", screen_x, "columns."
+				self.quit_ui()
+				quit(1)
+
 		
 		# Screen is up
 		curses.noecho()
@@ -83,19 +99,13 @@ class tui:
 		self.stdscr.keypad(1)
 		#- /screen init ----
 		
-		# Draw windows
-		self.draw_data_win()
-		self.draw_path_win()
-		self.draw_log_win()
-		self.draw_help_win()
-		self.draw_players_win()
-		curses.panel.update_panels()
-		curses.doupdate()
 		
 #- /init ---------------------------------------------------------------		
 
 	def refresh(self):
 		""" Refresh all windows """
+		self.stdscr.addstr(self.DATA_Y -1 , self.DATA_X +1, "Game", curses.A_BOLD)
+		self.stdscr.addstr(self.PLAYERS_Y - 1, self.PLAYERS_X + 1, "Players", curses.A_BOLD)
 		self.stdscr.noutrefresh()
 		self.data_win.noutrefresh()
 		if self.map_win:
@@ -108,9 +118,27 @@ class tui:
 			self.help_win.noutrefresh()
 		if self.players_win:
 			self.players_win.noutrefresh()
+		if self.time_win:
+			self.time_win.noutrefresh()
+		if self.menu_win:
+			self.time_win.noutrefresh()
 		curses.doupdate()
 
-#- Draw windows --------------------------------------------------------
+	
+#- Draw game windows ---------------------------------------------------
+
+	def draw_game_windows(self):
+		""" Draw the windows needed for the game """
+		if self.menu_win:
+			self.menu_win.erase()
+			
+		self.draw_data_win()
+		self.draw_path_win()
+		self.draw_log_win()
+		self.draw_help_win()
+		self.draw_players_win()
+		curses.panel.update_panels()
+		curses.doupdate()
 
 	def draw_data_win(self):
 		""" Draw main data window """
@@ -227,21 +255,35 @@ class tui:
 					self.players_win.addch(y+2, self.PLAYERS_W-1, curses.ACS_RTEE)
 				y += 2
 
+
+	def draw_time_win(self):
+		self.TIME_W = self.LOG_W + self.MAP_W + 4
+		self.stdscr.addstr(self.TIME_Y - 1, self.TIME_X + 1, "Time line", curses.A_BOLD)
+		self.time_win = curses.newwin(3, self.TIME_W, self.TIME_Y, self.TIME_X)
+		self.time_pan = curses.panel.new_panel(self.time_win)
+		self.time_win.box()
+		self.time_win.addstr(1, 1, " ", curses.color_pair(4) + curses.A_REVERSE)
+		
 # MAP ------------------------------------------------------------------
 	
 	def draw_map(self, board_map, path):
 		""" Draw the map"""
 		board_size = len(board_map)
-
-		self.map_win = curses.newwin(board_size+2, board_size+2, self.MAP_Y, self.MAP_X)
-		self.map_pan = curses.panel.new_panel(self.map_win)
-
-		self.stdscr.addstr(self.MAP_Y - 1, self.MAP_X + 1, "Map ("+str(board_size)+"X"+str(board_size)+")", curses.A_BOLD)
 		self.MAP_H = board_size
 		self.MAP_W = board_size
 		
-		# Clear old map
+		if not self.map_win :
+			self.stdscr.addstr(self.MAP_Y - 1, self.MAP_X + 1, "Map ("+str(board_size)+"X"+str(board_size)+")", curses.A_BOLD)
+			self.map_win = curses.newwin(board_size+2, board_size+2, self.MAP_Y, self.MAP_X)	
+		else:
+			self.map_win.erase()
+			self.map_win.resize(board_size+2, board_size+2)
+			self.map_pan = curses.panel.new_panel(self.map_win)
+			
 		self.map_win.box()
+		
+		if not self.time_win:
+			self.draw_time_win()
 		
 		# highlight choosen path
 		for cell in path:
@@ -300,7 +342,6 @@ class tui:
 				self.players_win.addstr(17, x, str(hero.spawn_pos))
 				self.players_win.addstr(19, x, str(hero.crashed))
 				x += 18
-			
 	
 	def display_url(self, url):
 		url = url[url.rfind("/")+1:]
@@ -424,6 +465,26 @@ class tui:
 	def clear_data_cell(self, pos, length):
 		self.data_win.hline(pos[0], pos[1],  " ", length)
 
+# TIME CURSOR ----------------------------------------------------------
+
+	def move_time_cursor(self, pos):
+		self.time_win.box()
+		self.time_win.hline(1, 1,  curses.ACS_BLOCK, self.TIME_W - 2)
+		if pos < 1 :
+			pos = 1
+		if pos > self.TIME_W - 2 :
+			pos = self.TIME_W - 2
+		if pos > 1 :
+			self.time_win.addch(0, pos - 1, curses.ACS_TTEE)
+			self.time_win.addch(1, pos - 1 , curses.ACS_VLINE)
+			self.time_win.addch(2, pos - 1 , curses.ACS_BTEE)
+		if pos < self.TIME_W - 2:
+			self.time_win.addch(0, pos + 1, curses.ACS_TTEE)
+			self.time_win.addch(1, pos + 1 , curses.ACS_VLINE)
+			self.time_win.addch(2, pos + 1 , curses.ACS_BTEE)
+		self.time_win.addstr(1, pos, " ", curses.color_pair(4) + curses.A_REVERSE)
+		
+
 # LOG ------------------------------------------------------------------
 
 	def append_log(self, data):
@@ -457,20 +518,259 @@ class tui:
 				self.log_win.addstr(i+1, 1, entry, attr)
 				i += 1
 
+# Setup windows --------------------------------------------------------
+	def ask_action(self):
+		""" Return the inputed value """
+		k = self.menu_win.getkey()
+		return k
 
+	def is_int(self, num):
+		"""Return True if num is int and if num > 0
+		Print error message and return false otherwise"""
+		screen_y, screen_x = self.stdscr.getmaxyx() 
+		offset = screen_x/2 - 25
+		if num != None:
+			try:
+				num = int(str(num).strip(chr(0)))
+				if num > 0:
+					return True
+			except:
+				self.menu_win.addstr(15, offset + 7, "Please, input a integer greater than 0.", curses.color_pair(3))
+				self.menu_win.refresh()
+				return False
+		return False
+	
+	def check_input(self, char):
+		""" Manage backspace input """
+		if char < 256:
+			if char == 127:
+				# manage backspace
+				self.del_char()
+		return char
+		
+	def del_char(self):
+		""" With the self.input_win, 
+		delete the previous char and move cursor back """
+		y, x = self.input_win.getyx()
+		if x > 0 :
+			self.input_win.delch(y, x - 1)
+			self.input_win.move(y, x - 1)
+			
+	def check_url(self, url):
+		screen_y, screen_x = self.stdscr.getmaxyx() 
+		offset = screen_x/2 - 25
+		if len(url.strip(chr(0))) > 0:
+			# text_box.edit return a null char at start :(
+			check = urlparse.urlparse(url)
+			if len(check.scheme.strip(chr(0)).strip()) > 0 and len(check.netloc.strip(chr(0)).strip()) > 0 :
+				return True
+			self.menu_win.addstr(15, offset + 12, "Please, input a valid URL.", curses.color_pair(3))
+			self.menu_win.refresh()
+			return False
+		return False
+
+	def check_key(self, player_key):		
+		screen_y, screen_x = self.stdscr.getmaxyx() 
+		offset = screen_x/2 - 25
+		"""Check the player key format"""
+		if len(player_key.strip(chr(0)).strip()) > 0:
+			pattern="^([0-9]|[a-z]){8}"
+			f = re.search(pattern, player_key)
+			try:
+				if len(f.group(0)) == 8 and len(player_key.strip(chr(0)).strip()) == 8:
+					return True
+			except:
+				pass
+			self.menu_win.addstr(15, offset + 12, "Please, input a a valid key.", curses.color_pair(3))
+			self.menu_win.refresh()
+			return False
+		return False
+
+	def draw_banner(self):
+		""" Draw the Vindinium banner on self.menu_win """
+		screen_y, screen_x = self.stdscr.getmaxyx() 
+		offset = screen_x/2 - 25
+		self.menu_win.clear()
+		self.menu_win.box()
+		self.menu_pan = curses.panel.new_panel(self.menu_win)
+		title1 = "__     ___           _ _       _"
+		title2 = "\ \   / (_)_ __   __| (_)_ __ (_)_   _ _ __ ___"
+		title3 = " \ \ / /| | '_ \ / _` | | '_ \| | | | | '_ ` _ \\"
+		title4 = "  \ V / | | | | | (_| | | | | | | |_| | | | | | |"
+		title5 = "   \_/  |_|_| |_|\__,_|_|_| |_|_|\__,_|_| |_| |_|"
+		self.menu_win.addstr(1, offset, title1, curses.A_BOLD + curses.color_pair(4))
+		self.menu_win.addstr(2, offset, title2, curses.A_BOLD + curses.color_pair(4))
+		self.menu_win.addstr(3, offset, title3, curses.A_BOLD + curses.color_pair(4))
+		self.menu_win.addstr(4, offset, title4, curses.A_BOLD + curses.color_pair(4))
+		self.menu_win.addstr(5, offset, title5, curses.A_BOLD + curses.color_pair(4))
+		self.menu_win.addstr(7, offset + 8, "Welcome to the Vindinium curses client", curses.A_BOLD + curses.A_UNDERLINE )
+		
+	def ask_main_menu(self):
+		""" Display main menu window and ask for choice """
+		screen_y, screen_x = self.stdscr.getmaxyx() 
+		offset = screen_x/2 - 25
+		choice = "0"
+		options = ["1", "2", "3", "4"]
+		self.menu_win = curses.newwin(self.MENU_H, self.MENU_W, self.MENU_Y, self.MENU_X)
+		self.draw_banner()
+		self.menu_win.addstr(9, offset + 8, "Please, choose an option:", curses.A_BOLD)
+		self.menu_win.addstr(11, offset + 10, "1", curses.A_BOLD)
+		self.menu_win.addstr(11, offset + 12, "- Setup & play game")
+		self.menu_win.addstr(13, offset + 10, "2", curses.A_BOLD)
+		self.menu_win.addstr(13, offset + 12, "- Load game from file")
+		self.menu_win.addstr(15, offset + 10, "3", curses.A_BOLD)
+		self.menu_win.addstr(15, offset + 12, "- Load game from URL")
+		self.menu_win.addstr(17, offset + 10, "4", curses.A_BOLD)
+		self.menu_win.addstr(17, offset + 12, "- Quit")
+		while choice not in options:
+			choice = self.ask_action()
+		return choice
+
+
+	def ask_game_mode(self):
+		""" Display game mode menu and ask for choice """
+		screen_y, screen_x = self.stdscr.getmaxyx() 
+		offset = screen_x/2 - 25
+		choice = "0"
+		options = ["1", "2"]
+		self.draw_banner()
+		self.menu_win.addstr(9, offset - 15, "Please, choose a game mode:", curses.A_BOLD)
+		self.menu_win.addstr(11, offset - 15, "1", curses.A_BOLD)
+		self.menu_win.addstr(11, offset - 13, "- Arena mode:")
+		self.menu_win.addstr(12, offset - 11, "In this mode you will fight against 3 heroes as greedy and thirsty as you are.")
+		self.menu_win.addstr(13, offset - 11, "There can be only one !")
+		self.menu_win.addstr(15, offset - 15, "2", curses.A_BOLD)
+		self.menu_win.addstr(15, offset - 13, "- Training mode:")
+		self.menu_win.addstr(16, offset - 11, "In this mode you will fight against 3 dummy heroes as useless and stupid as yo^W random A.I bots are.")
+		self.menu_win.addstr(17, offset - 11, "Thus, you will earn no glory, no fame nor shame. Your Elo score will not be impacted by your victories or defeats.")
+		while choice not in options:
+			choice = self.ask_action()
+		return choice
+
+	def ask_number_games(self):
+		"""Ask for number_of_games"""
+		screen_y, screen_x = self.stdscr.getmaxyx() 
+		offset = screen_x/2 - 25
+		num_game = None
+		self.draw_banner()
+		self.menu_win.addstr(10, offset + 19, "ARENA MODE", curses.A_BOLD)
+		self.menu_win.addstr(13, offset + 8, "Number of games to play:", curses.A_BOLD)
+		text_box = curses.textpad.rectangle(self.menu_win, 12, offset + 33, 14, offset + 42)
+		self.input_win = self.menu_win.subwin(1, 8, 13, offset + 34)
+		self.input_win.bkgd(curses.color_pair(4) + curses.A_REVERSE)
+		input_pan = curses.panel.new_panel(self.input_win)
+		text_box = curses.textpad.Textbox(self.input_win)
+		text_box.stripspaces = 1
+		curses.panel.update_panels()
+		self.input_win.refresh()
+		while not self.is_int(num_game):
+			curses.curs_set(1)
+			num_game = text_box.edit(self.check_input)
+			curses.curs_set(0)
+		return int(str(num_game).strip(chr(0)).strip())
+
+		
+	def ask_number_turns(self):
+		"""Ask for number_of_turns """
+		screen_y, screen_x = self.stdscr.getmaxyx() 
+		offset = screen_x/2 - 25
+		num_turns = None
+		self.draw_banner()
+		self.menu_win.addstr(10, offset + 17, "TRAINING MODE", curses.A_BOLD)
+		self.menu_win.addstr(13, offset + 8, "Number of turns:", curses.A_BOLD)
+		text_box = curses.textpad.rectangle(self.menu_win, 12, offset + 25, 14, offset + 34)
+		self.input_win = self.menu_win.subwin(1, 8, 13, offset + 26)
+		self.input_win.bkgd(curses.color_pair(4) + curses.A_REVERSE)
+		input_pan = curses.panel.new_panel(self.input_win)
+		text_box = curses.textpad.Textbox(self.input_win)
+		text_box.stripspaces = 1
+		curses.panel.update_panels()
+		self.input_win.refresh()
+		while not self.is_int(num_turns):
+			curses.curs_set(1)
+			num_turns = text_box.edit(self.check_input)
+			curses.curs_set(0)
+		return int(str(num_turns).strip(chr(0)).strip())
+		
+	def ask_server_url(self, game_mode):
+		""" Ask for server url"""
+		server_url = ""
+		screen_y, screen_x = self.stdscr.getmaxyx() 
+		offset = screen_x/2 - 25
+		offset_2 = 19
+		self.draw_banner()
+		if game_mode == "training":
+			# Manage display offset according to len(game_mode)
+			offset_2 = 17
+		self.menu_win.addstr(10, offset + offset_2, game_mode.upper()+" MODE", curses.A_BOLD)
+		self.menu_win.addstr(13, offset + 6, "Server URL:", curses.A_BOLD)
+		text_box = curses.textpad.rectangle(self.menu_win, 12, offset + 18, 14, offset + 48)
+		self.input_win = self.menu_win.subwin(1, 29, 13, offset + 19)
+		self.input_win.bkgd(curses.color_pair(4) + curses.A_REVERSE)
+		self.input_win.addstr(0, 0, server_url)
+		input_pan = curses.panel.new_panel(self.input_win)
+		text_box = curses.textpad.Textbox(self.input_win)
+		text_box.stripspaces = 1
+		curses.panel.update_panels()
+		self.input_win.refresh()
+		while not self.check_url(server_url): 
+			# TODO : Better url check
+			curses.curs_set(1)
+			server_url = text_box.edit(self.check_input)
+			curses.curs_set(0)
+		return str(server_url).strip(chr(0)).strip()
+		
+	def ask_key(self, game_mode):
+		""" Ask for player key """
+		player_key = ""	
+		screen_y, screen_x = self.stdscr.getmaxyx() 
+		offset = screen_x/2 - 25
+		offset_2 = 19
+		self.draw_banner()
+		if game_mode == "training":
+			# Manage display offset according to len(game_mode)
+			offset_2 = 17
+		self.menu_win.addstr(10, offset + offset_2, game_mode.upper()+" MODE", curses.A_BOLD)
+		self.menu_win.addstr(13, offset + 6, "Player key:", curses.A_BOLD)
+		text_box = curses.textpad.rectangle(self.menu_win, 12, offset + 18, 14, offset + 48)
+		self.input_win = self.menu_win.subwin(1, 29, 13, offset + 19)
+		self.input_win.bkgd(curses.color_pair(4) + curses.A_REVERSE)
+		input_pan = curses.panel.new_panel(self.input_win)
+		text_box = curses.textpad.Textbox(self.input_win)
+		text_box.stripspaces = 1
+		curses.panel.update_panels()
+		self.input_win.refresh()	
+		while not self.check_key(player_key):
+			curses.curs_set(1)
+			player_key = text_box.edit(self.check_input)
+			curses.curs_set(0)
+		return str(player_key).strip(chr(0)).strip()
+
+	def ask_game_file_url(self):
+		""" Ask for game file url"""
+		return "http://vindinium.org"
+		
+	def ask_game_file_path(self):
+		""" Ask for game file path """
+		return "~/vindinium/games/0.json"
+
+	def ask_map(self):
+		return "m5"
+		
 # QUIT -----------------------------------------------------------------
 		
 	def ask_quit(self):
-		""" What don't you understand in 'press q to exit' ? ;-) """
+		""" What don't you understand in 'press q to quit' ? ;-) """
 		self.help_win.hline(0, 1, " ", 98)
-		self.help_win.addstr(0, 1, "Press 'q' to quit.")
+		self.help_win.addstr(0, 1, "Press ")
+		self.help_win.addstr(0, 7, "Q", curses.A_BOLD + curses.A_STANDOUT)
+		self.help_win.addstr(0, 8," to quit.")
 		curses.doupdate()
-
-		k = self.help_win.getkey()
-		if k == 'q':
-			self.quit_ui()
-		else :
-			self.ask_quit()
+		
+		k = None
+		while k != "q":
+			k = self.help_win.getkey()
+		self.quit_ui()
 	
 	def quit_ui(self):
 		""" Quit the UI and restore terminal state """
@@ -481,21 +781,10 @@ class tui:
 		curses.curs_set(1)
 		curses.endwin()
 		self.running = False
-		
+	
 # Pause U.I ----------------------------------------------------------------
 
 	def pause(self):
 		self.paused = not self.paused
 
-# ERROR ----------------------------------------------------------------
 
-	def term_error(self, error):
-		""" Manage terminal errors. 
-		May not work at all ! """
-		# Terminal is to small and not resizable
-		screen_y, screen_x = self.stdscr.getmaxyx() 
-		self.quit_ui()
-		print ("Unable to resize terminal: Your terminal needs to be at least "+\
-		str(MIN_LINES)+" lines X "+str(MIN_COLS)+" cols and was "+str(screen_y)+"X"+str(screen_y))
-		print error
-		quit()

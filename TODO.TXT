@@ -1,6 +1,7 @@
 TODO
 -----
-
  - Add ability to load game
  - Add ability to save game
  - Add ability to replay game
+ - Add ability to load default parameters via config file
+ - Add ability to save config in file

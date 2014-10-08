@@ -1,3 +1,15 @@
+2014-10-08:
+	- Added input checking in setup menu
+	- Added menu screenchots
+	- Updated UI screenshot
+
+2014-10-06:
+	- Added time line for future player
+	- Added setup menu
+	- Minor bugs corrections
+	- Client can be now launched without any parameter
+	- Added "--help" launch option
+
 2014-10-05 :
-    - U.I calls deported from bot to client
+    - U.I calls moved from bot to client
     - Client is no more able to run without U.I
