@@ -147,7 +147,7 @@ class Client:
             exit(0)
 
     def play(self):
-        """ Play all games """
+        """ Play all games"""
         for i in range(self.config.number_of_games):
             # start a new game
             if self.bot.running:
