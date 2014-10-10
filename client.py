@@ -51,6 +51,7 @@ class Client:
         choice = self.gui.ask_main_menu()
         number_of_games = 1
         number_of_turns = 300
+        map_name = ""
         if choice == '1':
             # Setup game
             choice = self.gui.ask_game_mode()
@@ -68,7 +69,7 @@ class Client:
             # Start game U.I
             self.gui.draw_game_windows()
             # Launch game
-            self.play(number_of_games, number_of_turns, server_url, key, game_mode)
+            self.play(number_of_games, number_of_turns, server_url, key, game_mode, map_name)
         elif choice == '2':
             # Load game from file
             game_file_path = self.gui.ask_game_file_path()
@@ -86,33 +87,33 @@ class Client:
             self.gui.quit_ui()
             exit(0)
 
-    def play(self, number_of_games, number_of_turns, server_url, key, mode):
+    def play(self, number_of_games, number_of_turns, server_url, key, game_mode, game_map=""):
         """ Play all games """
         for i in range(number_of_games):
             # start a new game
             if self.bot.running:
-                self.start_game(server_url, key, mode, number_of_turns, self.bot)
+                self.start_game(server_url, key, game_mode, number_of_turns, game_map)
                 self._print("Game finished: "+str(i+1)+"/"+str(number_of_games))
         if self.gui.running and self.gui.help_win:
             self.gui.ask_quit()
 
-    def start_game(self, server_url, key, mode, turns, bot):
+    def start_game(self, server_url, key, game_mode, turns, game_map):
         """Starts a game with all the required parameters"""
         self.running = True
         # Default move is no move !
         direction = "Stay"
         # Create a requests session that will be used throughout the game
         self.session = requests.session()
-        if mode == 'arena':
+        if game_mode == 'arena':
             self._print('Connecting and waiting for other players to join...')
         try:
             # Get the initial state
-            self.state = self.get_new_game_state(self.session, server_url, key, mode, turns)
+            self.state = self.get_new_game_state(self.session, server_url, key, game_mode, turns, game_map)
             self._print("Playing at: " + self.state['viewUrl'])
         except Exception as e:
             self._print("Error: Please verify your settings.")
-            self._print("Settings:", server_url, key, mode, turns)
-            self._print("Settings:", len(server_url), len(key), len(mode), type(turns))
+            self._print("Settings:", server_url, key, game_mode, turns)
+            self._print("Settings:", len(server_url), len(key), len(game_mode), type(turns))
             self._print("Game state:", self.state)
             self.running = False
             self.gui.ask_quit()
@@ -151,14 +152,16 @@ class Client:
         # Clean up the session
         self.session.close()
 
-    def get_new_game_state(self, session, server_url, key, mode='training', number_of_turns=10):
+    def get_new_game_state(self, session, server_url, key, game_mode, number_of_turns, game_map):
         """Get a JSON from the server containing the current state of the game"""
-        if mode == 'training':
-            # Don't pass the 'map' parameter if you want a random map
-            params = {'key': key, 'turns': number_of_turns, 'map': 'm1'}
-            # params = {'key': key, 'turns': number_of_turns}
+        if game_mode == 'training':
+            # Don't pass the 'map' parameter if no map has been selected
+            if len(game_map) > 0:
+                params = {'key': key, 'turns': number_of_turns, 'map': game_map}
+            else:
+                params = {'key': key, 'turns': number_of_turns}
             api_endpoint = '/api/training'
-        elif mode == 'arena':
+        elif game_mode == 'arena':
             params = {'key': key}
             api_endpoint = '/api/arena'
         # Wait for 10 minutes
@@ -174,7 +177,7 @@ class Client:
         """Return True if game defined by state is over"""
         try:
             return state['game']['finished']
-        except:
+        except Exception as e:
             return True
 
     def send_move(self, session, url, direction):
