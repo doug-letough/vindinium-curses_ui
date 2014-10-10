@@ -43,12 +43,12 @@ class Curses_ui_bot:
 
         self.ai.process(self.game)
         self.path_to_goal, \
-        self.action, \
-        self.decision, \
-        self.hero_move, \
-        self.nearest_enemy_pos, \
-        self.nearest_mine_pos, \
-        self.nearest_tavern_pos = self.ai.decide()
+            self.action, \
+            self.decision, \
+            self.hero_move, \
+            self.nearest_enemy_pos, \
+            self.nearest_mine_pos, \
+            self.nearest_tavern_pos = self.ai.decide()
 
         ################################################################
         # /AI

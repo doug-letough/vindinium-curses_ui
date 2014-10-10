@@ -9,7 +9,7 @@ class Hero:
             # Training bots have no elo or userId
             self.elo = hero['elo']
             self.user_id = hero['userId']
-        except:
+        except KeyError:
             self.elo = 0
             self.user_id = 0
 
