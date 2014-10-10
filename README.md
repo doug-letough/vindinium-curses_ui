@@ -86,6 +86,15 @@ http://www.vindinium.org/
 
 
 
-![Curses U.I Setup menu](vindinium_curses_ui_menu.png)
+![Main menu](01.png)
+![Game mode selection](02.png)
+![Number of games input (Arena mode)](03.png)
+![Server URL input](04.png)
+![Player key input](05.png)
+![Save config screen](06.png)
+![Play game screen](07.png)
+![Number of turns input (Training mode)](08.png)
+![Game map selection (Training mode)](09.png)
+![Game file path input](10.png)
+![Game file URL input](11.png)
 ![Curses U.I running a game](vindinium_curses_ui.png)
-

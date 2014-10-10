@@ -3,8 +3,6 @@ TODO
  - Add ability to load game
  - Add ability to save game
  - Add ability to replay game
- - Add ability to load default parameters via config file
- - Add ability to save config in file
  - Define one unique color for each player
  - Add game summary at end of game
  - Add currently winning player identification mark while game is running

@@ -52,8 +52,8 @@ class AI:
 
         actions = ['mine', 'tavern', 'fight']
 
-        decisions = {'mine': [("Mine", 30), ('Fight', 10), ('Tavern', 5)], 
-                    'tavern': [("Mine", 10), ('Fight', 10), ('Tavern', 50)], 
+        decisions = {'mine': [("Mine", 30), ('Fight', 10), ('Tavern', 5)],
+                    'tavern': [("Mine", 10), ('Fight', 10), ('Tavern', 50)],
                     'fight': [("Mine", 15), ('Fight', 30), ('Tavern', 10)]}
 
         walkable = []
@@ -63,8 +63,8 @@ class AI:
         for y in range(self.game.board_size):
             for x in range(self.game.board_size):
                 if (y, x) not in self.game.walls_locs or \
-                    (y, x) not in self.game.taverns_locs or \
-                    (y, x) not in self.game.mines_locs:
+                        (y, x) not in self.game.taverns_locs or \
+                        (y, x) not in self.game.mines_locs:
 
                     walkable.append((y, x))
 
@@ -76,9 +76,9 @@ class AI:
         for i in range(int(round(random.random()*self.game.board_size))):
             for i in range(len(walkable)):
                 random.shuffle(walkable)
-                if (walkable[i][0] - first_cell[0] == 1 and 
+                if (walkable[i][0] - first_cell[0] == 1 and
                         walkable[i][1] - first_cell[1] == 0) or \
-                        (walkable[i][1] - first_cell[1] == 1 and 
+                        (walkable[i][1] - first_cell[1] == 1 and
                         walkable[i][0] - first_cell[0] == 0):
                     path_to_goal.append(walkable[i])
                     first_cell = walkable[i]
@@ -91,12 +91,12 @@ class AI:
         nearest_mine_pos = random.choice(self.game.mines_locs)
         nearest_tavern_pos = random.choice(self.game.mines_locs)
 
-        return (path_to_goal, 
-                action, 
-                decision, 
-                hero_move, 
-                nearest_enemy_pos, 
-                nearest_mine_pos, 
+        return (path_to_goal,
+                action,
+                decision,
+                hero_move,
+                nearest_enemy_pos,
+                nearest_mine_pos,
                 nearest_tavern_pos)
 
 

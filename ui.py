@@ -56,7 +56,7 @@ class tui:
 
         self.MENU_Y = 0
         self.MENU_X = 0
-        self.MENU_H = 20
+        self.MENU_H = 24
         self.MENU_W = 0
 
         self.data_win = None
@@ -99,10 +99,10 @@ class tui:
         curses.cbreak()
         curses.curs_set(0)
         self.stdscr.keypad(1)
-        #- /screen init ----
+        # - /screen init ----
 
 
-#- /init ---------------------------------------------------------------
+# - /init ---------------------------------------------------------------
 
     def refresh(self):
         """Refresh all windows"""
@@ -127,7 +127,7 @@ class tui:
         curses.doupdate()
 
 
-#- Draw game windows ---------------------------------------------------
+# - Draw game windows --------------------------------------------------
 
     def draw_game_windows(self):
         """Draw the windows needed for the game"""
@@ -149,19 +149,19 @@ class tui:
         self.data_pan = curses.panel.new_panel(self.data_win)
         self.stdscr.addstr(self.DATA_Y - 1, self.DATA_X + 1, "Game", curses.A_BOLD)
 
-        data_lines = ["Playing", 
-                        "Bot name", 
-                        "Elo", \
-                        "Elapsed time", 
-                        "Turn", 
-                        "Position", 
-                        "Life", 
-                        "Mine count", 
-                        "Gold", 
-                        "Move", 
-                        "Action", 
-                        "Nearest hero", 
-                        "Nearest bar", 
+        data_lines = ["Playing",
+                        "Bot name",
+                        "Elo",
+                        "Elapsed time",
+                        "Turn",
+                        "Position",
+                        "Life",
+                        "Mine count",
+                        "Gold",
+                        "Move",
+                        "Action",
+                        "Nearest hero",
+                        "Nearest bar",
                         "Nearest mine"]
 
         self.data_win.vline(1, 13, curses.ACS_VLINE, self.DATA_H)
@@ -223,16 +223,16 @@ class tui:
         self.players_win = curses.newwin(self.PLAYERS_H, self.PLAYERS_W, self.PLAYERS_Y, self.PLAYERS_X)
         self.players_win.box()
         self.players_pan = curses.panel.new_panel(self.players_win)
-        players_lines = ["Name", 
-                    "User ID", 
-                    "Bot ID", 
-                    "Elo", 
-                    "Position", 
-                    "Life", 
-                    "Mine count", 
-                    "Gold", 
-                    "Spawn pos",  
-                    "Crashed"]
+        players_lines = ["Name",
+                        "User ID",
+                        "Bot ID",
+                        "Elo",
+                        "Position",
+                        "Life",
+                        "Mine count",
+                        "Gold",
+                        "Spawn pos",
+                        "Crashed"]
 
         self.players_win.vline(1, 11, curses.ACS_VLINE, self.PLAYERS_H-2)
         self.players_win.vline(1, 29, curses.ACS_VLINE, self.PLAYERS_H-2)
@@ -248,7 +248,7 @@ class tui:
         for line in players_lines:
             self.players_win.addstr(y+1, 1, line, curses.A_BOLD)
             if y < len(players_lines)*2 - 2:
-                self.players_win.hline(y + 2, 1, curses.ACS_HLINE,  self.PLAYERS_W-2)
+                self.players_win.hline(y + 2, 1, curses.ACS_HLINE, self.PLAYERS_W-2)
                 self.players_win.addch(y + 2, 0, curses.ACS_LTEE)
                 self.players_win.addch(y + 2, 11, curses.ACS_PLUS)
                 self.players_win.addch(y + 2, 29, curses.ACS_PLUS)
@@ -257,6 +257,7 @@ class tui:
             y += 2
 
     def draw_time_win(self):
+        """Draw time line"""
         self.TIME_W = self.LOG_W + self.MAP_W + 4
         self.stdscr.addstr(self.TIME_Y - 1, self.TIME_X + 1, "Time line", curses.A_BOLD)
         self.time_win = curses.newwin(3, self.TIME_W, self.TIME_Y, self.TIME_X)
@@ -310,8 +311,8 @@ class tui:
                     attr = curses.A_BOLD + curses.color_pair(7)
                 if not (char == " " and (y, x in path)):
                     self.map_win.addch(y + 1, x + 1, char, attr)
-                x = x +1
-            y = y +1
+                x = x + 1
+            y = y + 1
 
 
 # / Draw window --------------------------------------------------------
@@ -449,37 +450,37 @@ class tui:
         self.data_win.addstr(23, 23, str(hero))
 
     def display_decision(self, decision):
-        self.path_win.hline(1, 14,  " ", 51)
+        self.path_win.hline(1, 14, " ", 51)
         d = ""
         for h in decision:
             d += str(h[0])+": "+str(h[1])+" | "
         self.path_win.addstr(1, 14, d)
 
     def display_path(self, path):
-        self.path_win.hline(3, 14,  " ", 51)
+        self.path_win.hline(3, 14, " ", 51)
         path = str(path).strip('[').strip(']')[0:48]+"..."
         self.path_win.addstr(3, 14, path)
 
     def clear_data_cell(self, pos, length):
-        self.data_win.hline(pos[0], pos[1],  " ", length)
+        self.data_win.hline(pos[0], pos[1], " ", length)
 
 # TIME CURSOR ----------------------------------------------------------
 
     def move_time_cursor(self, pos):
         self.time_win.box()
-        self.time_win.hline(1, 1,  curses.ACS_BLOCK, self.TIME_W - 2)
+        self.time_win.hline(1, 1, curses.ACS_BLOCK, self.TIME_W - 2)
         if pos < 1:
             pos = 1
         if pos > self.TIME_W - 2:
             pos = self.TIME_W - 2
         if pos > 1:
             self.time_win.addch(0, pos - 1, curses.ACS_TTEE)
-            self.time_win.addch(1, pos - 1 , curses.ACS_VLINE)
-            self.time_win.addch(2, pos - 1 , curses.ACS_BTEE)
+            self.time_win.addch(1, pos - 1, curses.ACS_VLINE)
+            self.time_win.addch(2, pos - 1, curses.ACS_BTEE)
         if pos < self.TIME_W - 2:
             self.time_win.addch(0, pos + 1, curses.ACS_TTEE)
-            self.time_win.addch(1, pos + 1 , curses.ACS_VLINE)
-            self.time_win.addch(2, pos + 1 , curses.ACS_BTEE)
+            self.time_win.addch(1, pos + 1, curses.ACS_VLINE)
+            self.time_win.addch(2, pos + 1, curses.ACS_BTEE)
         self.time_win.addstr(1, pos, " ", curses.color_pair(4) + curses.A_REVERSE)
 
 
@@ -496,11 +497,10 @@ class tui:
 
     def purge_log(self):
         """Purge log of oldest entries"""
-        diff = len(self.log_entries) - (self.LOG_H - self.HELP_H -2)
+        diff = len(self.log_entries) - (self.LOG_H - self.HELP_H - 2)
         if diff > 0:
             for i in range(diff):
                 self.log_entries.remove(self.log_entries[i])
-
 
     def display_log(self):
         """Display log entries"""
@@ -527,12 +527,12 @@ class tui:
         Print error message and return false otherwise"""
         screen_y, screen_x = self.stdscr.getmaxyx()
         offset = screen_x/2 - 25
-        if num != None:
+        if num is not None:
             try:
                 num = int(str(num).strip(chr(0)))
                 if num > 0:
                     return True
-            except:
+            except (ValueError, TypeError):
                 self.menu_win.addstr(15, offset + 7, "Please, input a integer greater than 0.", curses.color_pair(3))
                 self.menu_win.refresh()
         return False
@@ -556,25 +556,27 @@ class tui:
     def check_url(self, url):
         screen_y, screen_x = self.stdscr.getmaxyx()
         offset = screen_x/2 - 25
-        if len(url.strip(chr(0))) > 0:
+        url = url.strip(chr(0)).strip()
+        if len(url) > 0:
             # text_box.edit return a null char at start:(
             check = urlparse.urlparse(url)
-            if len(check.scheme.strip(chr(0)).strip()) > 0 and len(check.netloc.strip(chr(0)).strip()) > 0:
+            if len(check.scheme) > 0 and len(check.netloc) > 0:
                 return True
             self.menu_win.addstr(15, offset + 12, "Please, input a valid URL.", curses.color_pair(3))
             self.menu_win.refresh()
         return False
-        
-        
+
     def check_file_url(self, url):
+        """Return True if url is a valid url with 'file path'"""
         screen_y, screen_x = self.stdscr.getmaxyx()
         offset = screen_x/2 - 25
-        if len(url.strip(chr(0))) > 0:
+        url = url.strip(chr(0)).strip()
+        if len(url) > 0:
             # text_box.edit return a null char at start:(
             check = urlparse.urlparse(url)
-            if len(check.scheme.strip(chr(0)).strip()) > 0 and \
-                len(check.netloc.strip(chr(0)).strip()) > 0 and \
-                len(check.path.strip(chr(0)).strip()) > 0:
+            if len(check.scheme) > 0 and \
+                    len(check.netloc) > 0 and \
+                    len(check.path) > 0:
                 return True
             self.menu_win.addstr(15, offset + 12, "Please, input a valid URL.", curses.color_pair(3))
             self.menu_win.refresh()
@@ -583,7 +585,8 @@ class tui:
     def check_file_path(self, path):
         screen_y, screen_x = self.stdscr.getmaxyx()
         offset = screen_x/2 - 25
-        if len(path.strip(chr(0))) > 0:
+        path = path.strip(chr(0)).strip()
+        if len(path) > 0:
             # text_box.edit return a null char at start:(
             if os.path.exists(path):
                 return True
@@ -592,16 +595,17 @@ class tui:
         return False
 
     def check_key(self, player_key):
-        screen_y, screen_x = self.stdscr.getmaxyx()
-        offset = screen_x/2 - 25
         """Check the player key format"""
-        if len(player_key.strip(chr(0)).strip()) > 0:
-            pattern="^([0-9]|[a-z]){8}"
+        screen_y, screen_x = self.stdscr.getmaxyx()
+        offset = screen_x / 2 - 25
+        player_key = player_key.strip(chr(0)).strip()
+        if len(player_key) > 0:
+            pattern = "^([0-9]|[a-z]){8}"
             f = re.search(pattern, player_key)
             try:
-                if len(f.group(0)) == 8 and len(player_key.strip(chr(0)).strip()) == 8:
+                if len(f.group(0)) == 8 and len(player_key) == 8:
                     return True
-            except:
+            except (TypeError, AttributeError):
                 pass
             self.menu_win.addstr(15, offset + 12, "Please, input a a valid key.", curses.color_pair(3))
             self.menu_win.refresh()
@@ -624,29 +628,30 @@ class tui:
         self.menu_win.addstr(3, offset, title3, curses.A_BOLD + curses.color_pair(4))
         self.menu_win.addstr(4, offset, title4, curses.A_BOLD + curses.color_pair(4))
         self.menu_win.addstr(5, offset, title5, curses.A_BOLD + curses.color_pair(4))
-        self.menu_win.addstr(7, offset + 8, "Welcome to the Vindinium curses client", curses.A_BOLD + curses.A_UNDERLINE )
+        self.menu_win.addstr(7, offset + 8, "Welcome to the Vindinium curses client", curses.A_BOLD + curses.A_UNDERLINE)
 
     def ask_main_menu(self):
         """Display main menu window and ask for choice"""
         screen_y, screen_x = self.stdscr.getmaxyx()
         offset = screen_x/2 - 25
         choice = "0"
-        options = ["1", "2", "3", "4"]
+        options = ["1", "2", "3", "4", "5"]
         self.menu_win = curses.newwin(self.MENU_H, self.MENU_W, self.MENU_Y, self.MENU_X)
         self.draw_banner()
         self.menu_win.addstr(9, offset + 8, "Please, choose an option:", curses.A_BOLD)
         self.menu_win.addstr(11, offset + 10, "1", curses.A_BOLD)
-        self.menu_win.addstr(11, offset + 12, "- Setup & play game")
+        self.menu_win.addstr(11, offset + 12, "- Play game")
         self.menu_win.addstr(13, offset + 10, "2", curses.A_BOLD)
-        self.menu_win.addstr(13, offset + 12, "- Load game from file")
+        self.menu_win.addstr(13, offset + 12, "- Setup game")
         self.menu_win.addstr(15, offset + 10, "3", curses.A_BOLD)
-        self.menu_win.addstr(15, offset + 12, "- Load game from URL")
+        self.menu_win.addstr(15, offset + 12, "- Load game from file")
         self.menu_win.addstr(17, offset + 10, "4", curses.A_BOLD)
-        self.menu_win.addstr(17, offset + 12, "- Quit")
+        self.menu_win.addstr(17, offset + 12, "- Load game from URL")
+        self.menu_win.addstr(19, offset + 10, "5", curses.A_BOLD)
+        self.menu_win.addstr(19, offset + 12, "- Quit")
         while choice not in options:
             choice = self.ask_action()
         return choice
-
 
     def ask_game_mode(self):
         """Display game mode menu and ask for choice"""
@@ -689,7 +694,6 @@ class tui:
             num_game = text_box.edit(self.check_input)
             curses.curs_set(0)
         return int(str(num_game).strip(chr(0)).strip())
-
 
     def ask_number_turns(self):
         """Ask for number_of_turns"""
@@ -735,7 +739,6 @@ class tui:
         curses.panel.update_panels()
         self.input_win.refresh()
         while not self.check_url(server_url):
-            # TODO: Better url check
             curses.curs_set(1)
             server_url = text_box.edit(self.check_input)
             curses.curs_set(0)
@@ -771,12 +774,11 @@ class tui:
         """Ask for game file url"""
         file_url = ""
         screen_y, screen_x = self.stdscr.getmaxyx()
-        offset = screen_x/2 - 25
-        offset_2 = 19
+        offset = screen_x / 2 - 25
         self.draw_banner()
-        self.menu_win.addstr(13, offset + 6, "File URL:", curses.A_BOLD)
-        text_box = curses.textpad.rectangle(self.menu_win, 12, offset + 18, 14, offset + 48)
-        self.input_win = self.menu_win.subwin(1, 29, 13, offset + 19)
+        self.menu_win.addstr(13, offset - 6, "File URL:", curses.A_BOLD)
+        text_box = curses.textpad.rectangle(self.menu_win, 12, offset + 5, 14, offset + 55)
+        self.input_win = self.menu_win.subwin(1, 49, 13, offset + 6)
         self.input_win.bkgd(curses.color_pair(4) + curses.A_REVERSE)
         self.input_win.addstr(0, 0, file_url)
         input_pan = curses.panel.new_panel(self.input_win)
@@ -785,7 +787,6 @@ class tui:
         curses.panel.update_panels()
         self.input_win.refresh()
         while not self.check_file_url(file_url):
-            # TODO: Better url check
             curses.curs_set(1)
             file_url = text_box.edit(self.check_input)
             curses.curs_set(0)
@@ -795,12 +796,11 @@ class tui:
         """Ask for game file path"""
         file_path = ""
         screen_y, screen_x = self.stdscr.getmaxyx()
-        offset = screen_x/2 - 25
-        offset_2 = 19
+        offset = screen_x / 2 - 25
         self.draw_banner()
-        self.menu_win.addstr(13, offset + 6, "File path:", curses.A_BOLD)
-        text_box = curses.textpad.rectangle(self.menu_win, 12, offset + 18, 14, offset + 48)
-        self.input_win = self.menu_win.subwin(1, 29, 13, offset + 19)
+        self.menu_win.addstr(13, offset - 6, "File path:", curses.A_BOLD)
+        text_box = curses.textpad.rectangle(self.menu_win, 12, offset + 5, 14, offset + 55)
+        self.input_win = self.menu_win.subwin(1, 49, 13, offset + 6)
         self.input_win.bkgd(curses.color_pair(4) + curses.A_REVERSE)
         self.input_win.addstr(0, 0, file_path)
         input_pan = curses.panel.new_panel(self.input_win)
@@ -809,14 +809,73 @@ class tui:
         curses.panel.update_panels()
         self.input_win.refresh()
         while not self.check_file_path(file_path):
-            # TODO: Better url check
             curses.curs_set(1)
             file_path = text_box.edit(self.check_input)
             curses.curs_set(0)
         return str(file_path).strip(chr(0)).strip()
 
+    def ask_save_config(self):
+        """Ask for config save"""
+        screen_y, screen_x = self.stdscr.getmaxyx()
+        offset = screen_x/2 - 25
+        choice = "0"
+        options = ["1", "2"]
+        self.menu_win = curses.newwin(self.MENU_H, self.MENU_W, self.MENU_Y, self.MENU_X)
+        self.draw_banner()
+        self.menu_win.addstr(11, offset + 8, "Save configuration ?", curses.A_BOLD)
+        self.menu_win.addstr(13, offset + 10, "1", curses.A_BOLD)
+        self.menu_win.addstr(13, offset + 12, "- Yes")
+        self.menu_win.addstr(15, offset + 10, "2", curses.A_BOLD)
+        self.menu_win.addstr(15, offset + 12, "- No")
+        while choice not in options:
+            choice = self.ask_action()
+        if choice == "1":
+            return True
+        return False
+
+    def ask_play_game(self):
+        """Ask for playing game"""
+        screen_y, screen_x = self.stdscr.getmaxyx()
+        offset = screen_x/2 - 25
+        choice = "0"
+        options = ["1", "2"]
+        self.menu_win = curses.newwin(self.MENU_H, self.MENU_W, self.MENU_Y, self.MENU_X)
+        self.draw_banner()
+        self.menu_win.addstr(11, offset + 8, "Play game ?", curses.A_BOLD)
+        self.menu_win.addstr(13, offset + 10, "1", curses.A_BOLD)
+        self.menu_win.addstr(13, offset + 12, "- Yes")
+        self.menu_win.addstr(15, offset + 10, "2", curses.A_BOLD)
+        self.menu_win.addstr(15, offset + 12, "- No")
+        while choice not in options:
+            choice = self.ask_action()
+        if choice == "1":
+            return True
+        return False
+
     def ask_map(self):
-        return "m5"
+        """Display main menu window and ask for choice"""
+        screen_y, screen_x = self.stdscr.getmaxyx()
+        offset = screen_x/2 - 25
+        choice = "0"
+        options = ["1", "2", "3", "4", "5", "6"]
+        self.menu_win = curses.newwin(self.MENU_H, self.MENU_W, self.MENU_Y, self.MENU_X)
+        self.draw_banner()
+        self.menu_win.addstr(9, offset + 8, "Please, choose a map:", curses.A_BOLD)
+        self.menu_win.addstr(11, offset + 10, "1", curses.A_BOLD)
+        self.menu_win.addstr(11, offset + 12, "- M1 : A 10X10 symetrical map")
+        self.menu_win.addstr(13, offset + 10, "2", curses.A_BOLD)
+        self.menu_win.addstr(13, offset + 12, "- M2 : A 12X12 symetrical map")
+        self.menu_win.addstr(15, offset + 10, "3", curses.A_BOLD)
+        self.menu_win.addstr(15, offset + 12, "- M3 : A 20X20 asymetrical map")
+        self.menu_win.addstr(17, offset + 10, "4", curses.A_BOLD)
+        self.menu_win.addstr(17, offset + 12, "- M4 : A 18X18 symetrical map")
+        self.menu_win.addstr(19, offset + 10, "5", curses.A_BOLD)
+        self.menu_win.addstr(19, offset + 12, "- M5 : A 18X18 symetrical map")
+        self.menu_win.addstr(19, offset + 10, "6", curses.A_BOLD)
+        self.menu_win.addstr(19, offset + 12, "- M6 : A 16X16 symetrical map")
+        while choice not in options:
+            choice = self.ask_action()
+        return choice
 
 # QUIT -----------------------------------------------------------------
 
@@ -847,5 +906,3 @@ class tui:
 
     def pause(self):
         self.paused = not self.paused
-
-
