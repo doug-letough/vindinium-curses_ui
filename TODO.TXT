@@ -8,3 +8,4 @@ TODO
  - Define one unique color for each player
  - Add game summary at end of game
  - Add currently winning player identification mark while game is running
+ - Add Windows support

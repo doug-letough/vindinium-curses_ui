@@ -5,8 +5,8 @@ Python/Curses user interface for the Vindinium A.I contest.
 http://www.vindinium.org/
 
 
-1 - Licence :
--------------
+1 - Licence:
+------------
     This code is published by Doug Le Tough (doug.letough@free.fr) 
     and released under the W.T.F.P.L.
     
@@ -19,8 +19,8 @@ http://www.vindinium.org/
     For further information about the WTFPL please
     visit  http://www.wtfpl.net/
 
-2 - Content :
--------------
+2 - Content:
+------------
 
  - ai.py                         The random A.I. This is where to put your A.I code
  - bot.py                        The bot object source code. Collects data processed.
@@ -34,8 +34,27 @@ http://www.vindinium.org/
  - TODO.TXT                      The famous TODO list
  - ui.py                         The curses U.I. source code
 
-3 - How to make it work :
--------------------------
+
+3 - Prerequities:
+-----------------
+
+    a - An Unix-like system (Linux/BSD/MacOSX/...)
+        Due to some limitations of the underlying operating system, 
+        Windows is not not supported by this program.
+        The work needed to make it work with Windows is not so
+        hard but it is not a top priority for now.
+        However, in a near future, this program should run over Windows.
+        
+    b - Python 2.7.x
+        This Program will simply NOT run with Python3.
+        
+    c - The python-requests modules
+    
+    d - The python-curses modules
+
+
+4 - How to make it work:
+------------------------
 
     The ai.py file contains the code of your bot.
     With the bot.py file, it's merely the only file you'll need to play with.
@@ -66,4 +85,7 @@ http://www.vindinium.org/
 
 
 
+
+![Curses U.I Setup menu](vindinium_curses_ui_menu.png)
+![Curses U.I running a game](vindinium_curses_ui.png)
 
