@@ -14,7 +14,6 @@ class Curses_ui_bot:
     """THis is your bot"""
     def __init__(self):
         self.running = True
-
         self.state = None
         self.game = None
         self.last_mine_count = 0
@@ -30,11 +29,12 @@ class Curses_ui_bot:
         self.last_nearest_enemy_pos = None
         self.last_nearest_mine_pos = None
         self.last_nearest_tavern_pos = None
-
         # The A.I, Skynet's rising !
         self.ai = ai.AI()
 
     def move(self, state):
+        """Return store data provided by A.I
+        and return selected move"""
         self.state = state
         self.game = Game(self.state)
         ################################################################
@@ -64,5 +64,18 @@ class Curses_ui_bot:
         self.last_nearest_enemy_pos = self.nearest_enemy_pos
         self.last_nearest_mine_pos = self.nearest_mine_pos
         self.last_nearest_tavern_pos = self.nearest_tavern_pos
-
         return self.hero_move
+
+    def process_game(self, state):
+        """Process state data (for replay mode)"""
+        self.state = state
+        self.game = Game(self.state)
+        self.hero_last_move = self.hero_move
+        self.last_life = self.game.hero.life
+        self.last_action = self.action
+        self.last_gold = self.game.hero.gold
+        self.last_mine_count = self.game.hero.mine_count
+        self.last_pos = self.game.hero.pos
+        self.last_nearest_enemy_pos = self.nearest_enemy_pos
+        self.last_nearest_mine_pos = self.nearest_mine_pos
+        self.last_nearest_tavern_pos = self.nearest_tavern_pos

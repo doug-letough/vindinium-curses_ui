@@ -216,6 +216,8 @@ class tui:
         self.help_win.addstr(0, 2, "uit")
         self.help_win.addstr(0, 8, "P", curses.A_BOLD + curses.A_STANDOUT)
         self.help_win.addstr(0, 9, "ause")
+        self.help_win.addstr(0, 16, "S", curses.A_BOLD + curses.A_STANDOUT)
+        self.help_win.addstr(0, 17, "ave")
 
     def draw_players_win(self):
         """Draw players window"""
@@ -554,6 +556,7 @@ class tui:
             self.input_win.move(y, x - 1)
 
     def check_url(self, url):
+        """Return True if url is a valid url"""
         screen_y, screen_x = self.stdscr.getmaxyx()
         offset = screen_x/2 - 25
         url = url.strip(chr(0)).strip()
@@ -583,11 +586,12 @@ class tui:
         return False
 
     def check_file_path(self, path):
+        """Return True if path is an existant file name"""
         screen_y, screen_x = self.stdscr.getmaxyx()
         offset = screen_x/2 - 25
         path = path.strip(chr(0)).strip()
         if len(path) > 0:
-            # text_box.edit return a null char at start:(
+            # text_box.edit return a null char at start
             if os.path.exists(path):
                 return True
             self.menu_win.addstr(15, offset + 12, "Please, input a valid path.", curses.color_pair(3))
@@ -881,16 +885,19 @@ class tui:
 
     def ask_quit(self):
         """What don't you understand in 'press q to quit' ? ;-)"""
+        keys = ["q", "s", "r"]
         self.help_win.hline(0, 1, " ", 98)
-        self.help_win.addstr(0, 1, "Press ")
-        self.help_win.addstr(0, 7, "Q", curses.A_BOLD + curses.A_STANDOUT)
-        self.help_win.addstr(0, 8, " to quit.")
+        self.help_win.addstr(0, 1, "Q", curses.A_BOLD + curses.A_STANDOUT)
+        self.help_win.addstr(0, 2, "uit")
+        self.help_win.addstr(0, 8, "S", curses.A_BOLD + curses.A_STANDOUT)
+        self.help_win.addstr(0, 9, "ave")
+        self.help_win.addstr(0, 15, "R", curses.A_BOLD + curses.A_STANDOUT)
+        self.help_win.addstr(0, 16, "eplay")
         curses.doupdate()
-
-        k = None
-        while k != "q":
-            k = self.help_win.getkey()
-        self.quit_ui()
+        key = None
+        while key not in keys:
+            key = self.help_win.getkey()
+        return key
 
     def quit_ui(self):
         """Quit the UI and restore terminal state"""
@@ -902,7 +909,6 @@ class tui:
         curses.endwin()
         self.running = False
 
-# Pause U.I ----------------------------------------------------------------
-
     def pause(self):
+        """Switch pause state"""
         self.paused = not self.paused
