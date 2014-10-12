@@ -2,7 +2,6 @@
 # -*- coding: utf-8 -*-
 
 import requests
-import grequests
 from bot import Curses_ui_bot
 import ui
 import sys
