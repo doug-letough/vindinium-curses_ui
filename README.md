@@ -10,7 +10,7 @@ http://www.vindinium.org/
     This code is published by Doug Le Tough (doug.letough@free.fr) 
     and released under the W.T.F.P.L.
     
-    It is based upon the Vindium python starter available here :
+    It was initially based upon the Vindium python starter available here :
     https://github.com/ornicar/vindinium-starter-python
     
     A copy of the W.T.F.P.L is available in the LICENCE.txt file 
@@ -38,8 +38,8 @@ http://www.vindinium.org/
 3 - Goal:
 -----------------
 
-    The main goal of this project is to provide a solution to people r
-    unning their bots on a server and who'd like to view their 
+    The main goal of this project is to provide a solution to people 
+    running their bots on a server and who'd like to view their 
     bots' activity in real-time without using the http connection 
     graciously provided by Vindinium.
 
