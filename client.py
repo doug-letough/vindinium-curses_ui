@@ -448,7 +448,7 @@ class Client:
             self.gui.display_last_nearest_hero(self.bot.last_nearest_enemy_pos)
             self.gui.display_last_nearest_tavern(self.bot.last_nearest_tavern_pos)
             # Print informations about other players
-            self.gui.display_heroes(self.bot.game.heroes, self.bot.game.hero.user_id)
+            self.gui.display_heroes(self.bot.game.heroes, self.bot.game.hero.bot_id)
             # Print a *list of tuples* representing what you think can be usefull
             # i.e an heuristic result
             self.gui.display_decision(self.bot.decision)

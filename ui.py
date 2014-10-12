@@ -358,7 +358,7 @@ class tui:
         max_mine = 0
         mine_pos = 0
         for hero in heroes:
-            if hero.user_id != bot_id:
+            if hero.bot_id != bot_id:
                 for i in range(1, 21, 2):
                     # Clear player tab
                     self.players_win.hline(i, x, " ", 17)
@@ -380,20 +380,20 @@ class tui:
                 self.players_win.addstr(15, x, str(hero.gold))
                 self.players_win.addstr(17, x, str(hero.spawn_pos))
                 self.players_win.addstr(19, x, str(hero.crashed))
-                if int(hero.gold) > max_gold:
-                    max_gold = int(hero.gold)
-                    gold_winner =  str(hero.bot_id)
-                    gold_pos = x
-                if int(hero.mine_count) > max_mine:
-                    max_mine = int(hero.mine_count)
-                    mine_winner =  str(hero.bot_id)
-                    mine_pos = x
-                x += 18
-        if gold_winner == bot_id:
+                x += 18 #  player horizontal offset
+            if int(hero.gold) > max_gold:
+                max_gold = int(hero.gold)
+                gold_winner =  str(hero.bot_id)
+                gold_pos = x
+            if int(hero.mine_count) > max_mine:
+                max_mine = int(hero.mine_count)
+                mine_winner =  str(hero.bot_id)
+                mine_pos = x
+        if gold_winner == str(bot_id):
             self.data_win.addstr(17, 21, "$", curses.A_BOLD + curses.color_pair(4))
         else:
             self.players_win.addstr(15, gold_pos + 16, "$", curses.A_BOLD + curses.color_pair(4))
-        if mine_winner == bot_id:
+        if mine_winner == str(bot_id):
             self.data_win.addstr(15, 21, "*", curses.A_BOLD + curses.color_pair(4))
         else:
             self.players_win.addstr(13, mine_pos + 16, "*", curses.A_BOLD + curses.color_pair(4))
