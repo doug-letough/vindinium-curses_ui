@@ -7,8 +7,8 @@ http://www.vindinium.org/
 
 1 - Licence:
 ------------
-    This software is published by Doug Le Tough (doug.letough@free.fr) 
-    and released under the W.T.F.P.L.
+    This software is published and copyrighted by Doug Le Tough 
+    (doug.letough@free.fr) and released under the W.T.F.P.L.
     
     It was initially based upon the Vindium python starter available here :
     https://github.com/ornicar/vindinium-starter-python
@@ -23,17 +23,38 @@ http://www.vindinium.org/
 2 - Content:
 ------------
 
- - ai.py                         The random A.I. This is where to put your A.I code
- - bot.py                        The bot object source code. Collects data processed.
- - CHANGELOG.TXT                 The changelog, you may read it.
- - client.py                     The client source code used to connect to game server
- - vindinium_curses_ui.png       A screenshots of the running U.I
- - vindinium_curses_ui_menu.png  Some screenshots of the setup menus
- - game.py                       Source code used to process data sent by the server
- - LICENCE.TXT                   A copy of the W.T.F.P.L
- - README.md                     This file
- - TODO.TXT                      The famous TODO list
- - ui.py                         The curses U.I. source code
+    a - ai.py
+        The random A.I. This is where to put your A.I code
+        
+    b - bot.py                        
+        The bot object source code. Collects data processed.
+        
+    c - CHANGELOG.TXT
+        The changelog, you may read it.
+        
+    d - client.py
+        The client source code used to connect to game server
+        
+    e - vindinium_curses_ui.png
+        A screenshots of the running U.I
+        
+    f - vindinium_curses_ui_menu.png
+        Some screenshots of the setup menus
+    
+    g - game.py
+        Source code used to process data sent by the server
+    
+    h - LICENCE.TXT
+        A copy of the W.T.F.P.L
+    
+    i - README.md 
+        This file
+    
+    j - TODO.TXT
+        The famous TODO list
+    
+    k - ui.py
+        The curses U.I. source code
 
 
 3 - Goal:
@@ -45,7 +66,10 @@ http://www.vindinium.org/
     graciously provided by Vindinium.
 
     This U.I to Vindinium is usable in a terminal and using an ssh 
-    connection also permits reducing network latency..
+    connection also permits reducing network latency.
+    
+    It also provides a convenient way to save to and load configuration 
+    and games from file allowing game later playback.
 
 
 4 - Prerequities:
@@ -102,7 +126,7 @@ http://www.vindinium.org/
     as it guaranties an first-hand answer.
 
 
-5 - Note :
+X - Note :
 ----------
 
     The code provided here do NOT contains any AI or path-finding code 

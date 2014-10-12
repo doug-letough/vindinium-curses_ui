@@ -5,3 +5,4 @@ TODO
  - Add Windows support
  - Allow user to browse turns while replaying game
  - Allow user to increase/decrease display time while replaying game
+ - Allow player to select A.I
