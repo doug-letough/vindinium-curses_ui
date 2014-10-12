@@ -7,7 +7,7 @@ http://www.vindinium.org/
 
 1 - Licence:
 ------------
-    This code is published by Doug Le Tough (doug.letough@free.fr) 
+    This software is published by Doug Le Tough (doug.letough@free.fr) 
     and released under the W.T.F.P.L.
     
     It was initially based upon the Vindium python starter available here :
@@ -18,6 +18,7 @@ http://www.vindinium.org/
 
     For further information about the WTFPL please
     visit  http://www.wtfpl.net/
+
 
 2 - Content:
 ------------
@@ -46,6 +47,7 @@ http://www.vindinium.org/
     This U.I to Vindinium is usable in a terminal and using an ssh 
     connection also permits reducing network latency..
 
+
 4 - Prerequities:
 -----------------
 
@@ -55,13 +57,16 @@ http://www.vindinium.org/
         The work needed to make it work with Windows is not so
         hard but it is not a top priority for now.
         However, in a near future, this program should run over Windows.
-        
-    b - Python 2.7.x
+       
+    b - A terminal or a terminal emulator such xterm able to display 
+        colors and supports least a 48 lines X 150 columns resolution.
+
+    c - Python 2.7.x
         This Program will simply NOT run with Python3.
         
-    c - The python-requests modules
+    d - The python-requests modules
     
-    d - The python-curses modules
+    e - The python-curses modules
 
 
 5 - How to make it work:
@@ -95,6 +100,7 @@ http://www.vindinium.org/
     or to the #vindinium freenode.net IRC channel. The latter may be a 
     faster way to obtain answers but an email should always be privileged 
     as it guaranties an first-hand answer.
+
 
 5 - Note :
 ----------
