@@ -7,10 +7,10 @@ http://www.vindinium.org/
 
 1 - Licence:
 ------------
-    This code is published by Doug Le Tough (doug.letough@free.fr) 
-    and released under the W.T.F.P.L.
+    This software is published and copyrighted by Doug Le Tough 
+    (doug.letough@free.fr) and released under the W.T.F.P.L.
     
-    It is based upon the Vindium python starter available here :
+    It was initially based upon the Vindium python starter available here :
     https://github.com/ornicar/vindinium-starter-python
     
     A copy of the W.T.F.P.L is available in the LICENCE.txt file 
@@ -19,23 +19,60 @@ http://www.vindinium.org/
     For further information about the WTFPL please
     visit  http://www.wtfpl.net/
 
+
 2 - Content:
 ------------
 
- - ai.py                         The random A.I. This is where to put your A.I code
- - bot.py                        The bot object source code. Collects data processed.
- - CHANGELOG.TXT                 The changelog, you may read it.
- - client.py                     The client source code used to connect to game server
- - vindinium_curses_ui.png       A screenshots of the running U.I
- - vindinium_curses_ui_menu.png  Some screenshots of the setup menus
- - game.py                       Source code used to process data sent by the server
- - LICENCE.TXT                   A copy of the W.T.F.P.L
- - README.md                     This file
- - TODO.TXT                      The famous TODO list
- - ui.py                         The curses U.I. source code
+    a - ai.py
+        The random A.I. This is where to put your A.I code
+        
+    b - bot.py                        
+        The bot object source code. Collects data processed.
+        
+    c - CHANGELOG.TXT
+        The changelog, you may read it.
+        
+    d - client.py
+        The client source code used to connect to game server
+        
+    e - vindinium_curses_ui.png
+        A screenshots of the running U.I
+        
+    f - vindinium_curses_ui_menu.png
+        Some screenshots of the setup menus
+    
+    g - game.py
+        Source code used to process data sent by the server
+    
+    h - LICENCE.TXT
+        A copy of the W.T.F.P.L
+    
+    i - README.md 
+        This file
+    
+    j - TODO.TXT
+        The famous TODO list
+    
+    k - ui.py
+        The curses U.I. source code
 
 
-3 - Prerequities:
+3 - Goal:
+-----------------
+
+    The main goal of this project is to provide a solution to people 
+    running their bots on a server and who'd like to view their 
+    bots' activity in real-time without using the http connection 
+    graciously provided by Vindinium.
+
+    This U.I to Vindinium is usable in a terminal and using an ssh 
+    connection also permits reducing network latency.
+    
+    It also provides a convenient way to save to and load configuration 
+    and games from file allowing game later playback.
+
+
+4 - Prerequities:
 -----------------
 
     a - An Unix-like system (Linux/BSD/MacOSX/...)
@@ -44,16 +81,19 @@ http://www.vindinium.org/
         The work needed to make it work with Windows is not so
         hard but it is not a top priority for now.
         However, in a near future, this program should run over Windows.
-        
-    b - Python 2.7.x
+       
+    b - A terminal or a terminal emulator such xterm able to display 
+        colors and supports least a 48 lines X 150 columns resolution.
+
+    c - Python 2.7.x
         This Program will simply NOT run with Python3.
         
-    c - The python-requests modules
+    d - The python-requests modules
     
-    d - The python-curses modules
+    e - The python-curses modules
 
 
-4 - How to make it work:
+5 - How to make it work:
 ------------------------
 
     The ai.py file contains the code of your bot.
@@ -80,21 +120,32 @@ http://www.vindinium.org/
             some basic infos to get connected to the server.
 
 
-    Note : The code provided here do NOT contains any AI or path-finding code               
-    but only a random AI. However it would run fine as is but would only win by mistake :)   
+    You may post your question about this project to doug.letough@free.fr 
+    or to the #vindinium freenode.net IRC channel. The latter may be a 
+    faster way to obtain answers but an email should always be privileged 
+    as it guaranties an first-hand answer.
+
+
+X - Note :
+----------
+
+    The code provided here do NOT contains any AI or path-finding code 
+    but only a random AI (hey, This YOUR job to put it up). 
+    
+    However it would run fine as is but would only win by mistake :)   
 
 
 
 
-![Main menu](01.png)
-![Game mode selection](02.png)
-![Number of games input (Arena mode)](03.png)
-![Server URL input](04.png)
-![Player key input](05.png)
-![Save config screen](06.png)
-![Play game screen](07.png)
-![Number of turns input (Training mode)](08.png)
-![Game map selection (Training mode)](09.png)
-![Game file path input](10.png)
-![Game file URL input](11.png)
-![Curses U.I running a game](vindinium_curses_ui.png)
+![Main menu](screenshots/01.png)
+![Game mode selection](screenshots/02.png)
+![Number of games input (Arena mode)](screenshots/03.png)
+![Server URL input](screenshots/04.png)
+![Player key input](screenshots/05.png)
+![Save config screen](screenshots/06.png)
+![Play game screen](screenshots/07.png)
+![Number of turns input (Training mode)](screenshots/08.png)
+![Game map selection (Training mode)](screenshots/09.png)
+![Game file path input](screenshots/10.png)
+![Game file URL input](screenshots/11.png)
+![Curses U.I running a game](screenshots/vindinium_curses_ui.png)

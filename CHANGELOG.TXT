@@ -1,3 +1,9 @@
+2014-10-11:
+    - Added save game ability
+    - Added load game from file ability
+    - Added replay game ability
+    - Added heroes color
+
 2014-10-10:
     - Added load config from file ability
     - Added save config to file ability

@@ -18,47 +18,38 @@ class tui:
     def __init__(self):
         self.running = True
         self.paused = False
-
         self.DATA_Y = 1
         self.DATA_X = 0
         self.DATA_H = 29
         self.DATA_W = 32
-
         self.PLAYERS_Y = 1
         self.PLAYERS_X = self.DATA_X + self.DATA_W + 2
         self.PLAYERS_H = 21
         self.PLAYERS_W = 66
-
         self.MAP_Y = 1
         self.MAP_X = self.PLAYERS_X + self.PLAYERS_W + 2
         self.MAP_H = 0
         self.MAP_W = 0
-
         self.PATH_Y = self.PLAYERS_Y + self.PLAYERS_H + 3
         self.PATH_X = self.DATA_X + self.DATA_W + 2
         self.PATH_H = 5
         self.PATH_W = 66
-
         self.LOG_Y = self.DATA_Y + self.DATA_H + 2
         self.LOG_X = 0
         self.LOG_H = 12
         self.LOG_W = self.DATA_W + self.PLAYERS_W + 2
-
         self.HELP_Y = self.LOG_Y + self.LOG_H - 2
         self.HELP_X = 1
         self.HELP_H = 1
         self.HELP_W = self.LOG_W - 2
-
         self.TIME_Y = self.LOG_Y + self.LOG_H + 2
         self.TIME_X = 0
         self.TIME_H = 0
         self.TIME_W = 0
-
         self.MENU_Y = 0
         self.MENU_X = 0
         self.MENU_H = 24
         self.MENU_W = 0
-
         self.data_win = None
         self.map_win = None
         self.path_win = None
@@ -67,21 +58,21 @@ class tui:
         self.players_win = None
         self.time_win = None
         self.menu_win = None
-
+        self.time_win = None
         self.log_entries = []
-
         self.stdscr = curses.initscr()
-
         curses.start_color()
         # Basic color set
-        self.WBK = curses.init_pair(1, curses.COLOR_WHITE, curses.COLOR_WHITE)
-        self.ALERT = curses.init_pair(2, curses.COLOR_WHITE, curses.COLOR_RED)
-        self.RED = curses.init_pair(3, curses.COLOR_RED, curses.COLOR_BLACK)
-        self.YELLOW = curses.init_pair(4, curses.COLOR_YELLOW, curses.COLOR_BLACK)
-        self.GREEN = curses.init_pair(5, curses.COLOR_GREEN, curses.COLOR_BLACK)
-        self.BLUE = curses.init_pair(6, curses.COLOR_WHITE, curses.COLOR_BLUE)
-        self.CYAN = curses.init_pair(7, curses.COLOR_CYAN, curses.COLOR_BLACK)
-
+        curses.init_pair(1, curses.COLOR_WHITE, curses.COLOR_WHITE)
+        curses.init_pair(2, curses.COLOR_WHITE, curses.COLOR_RED)
+        curses.init_pair(3, curses.COLOR_RED, curses.COLOR_BLACK)
+        curses.init_pair(4, curses.COLOR_YELLOW, curses.COLOR_BLACK)
+        curses.init_pair(5, curses.COLOR_GREEN, curses.COLOR_BLACK)
+        curses.init_pair(6, curses.COLOR_WHITE, curses.COLOR_BLUE)
+        curses.init_pair(7, curses.COLOR_CYAN, curses.COLOR_BLACK)
+        curses.init_pair(8, curses.COLOR_WHITE, curses.COLOR_MAGENTA)
+        curses.init_pair(9, curses.COLOR_WHITE, curses.COLOR_GREEN)
+        curses.init_pair(10, curses.COLOR_WHITE, curses.COLOR_YELLOW)
         # check for minimal screen size
         screen_y, screen_x = self.stdscr.getmaxyx()
         if screen_y < MIN_LINES or screen_x < MIN_COLS:
@@ -93,7 +84,6 @@ class tui:
                         screen_y, "lines and", screen_x, "columns."
                 self.quit_ui()
                 quit(1)
-
         # Screen is up
         curses.noecho()
         curses.cbreak()
@@ -101,8 +91,28 @@ class tui:
         self.stdscr.keypad(1)
         # - /screen init ----
 
-
 # - /init ---------------------------------------------------------------
+
+    def clear(self):
+        """Refresh all windows"""
+        self.stdscr.erase()
+        if self.data_win:
+            self.data_win.erase()
+        if self.map_win:
+            self.map_win.erase()
+        if self.path_win:
+            self.path_win.erase()
+        if self.log_win:
+            self.log_win.erase()
+        if self.help_win:
+            self.help_win.erase()
+        if self.players_win:
+            self.players_win.erase()
+        if self.time_win:
+            self.time_win.erase()
+        if self.menu_win:
+            self.menu_win.erase()
+        curses.doupdate()
 
     def refresh(self):
         """Refresh all windows"""
@@ -123,7 +133,7 @@ class tui:
         if self.time_win:
             self.time_win.noutrefresh()
         if self.menu_win:
-            self.time_win.noutrefresh()
+            self.menu_win.noutrefresh()
         curses.doupdate()
 
 
@@ -133,7 +143,6 @@ class tui:
         """Draw the windows needed for the game"""
         if self.menu_win:
             self.menu_win.erase()
-
         self.draw_data_win()
         self.draw_path_win()
         self.draw_log_win()
@@ -148,7 +157,6 @@ class tui:
         self.data_win.box()
         self.data_pan = curses.panel.new_panel(self.data_win)
         self.stdscr.addstr(self.DATA_Y - 1, self.DATA_X + 1, "Game", curses.A_BOLD)
-
         data_lines = ["Playing",
                         "Bot name",
                         "Elo",
@@ -163,14 +171,11 @@ class tui:
                         "Nearest hero",
                         "Nearest bar",
                         "Nearest mine"]
-
         self.data_win.vline(1, 13, curses.ACS_VLINE, self.DATA_H)
         self.data_win.addch(0, 13, curses.ACS_TTEE)
         self.data_win.addch(self.DATA_H-1, 13, curses.ACS_BTEE)
-
         self.data_win.vline(9, 22, curses.ACS_VLINE, self.DATA_H-9)
         self.data_win.addch(self.DATA_H-1, 22, curses.ACS_BTEE)
-
         y = 0
         for line in data_lines:
             self.data_win.addstr(y + 1, 1, line, curses.A_BOLD)
@@ -216,6 +221,8 @@ class tui:
         self.help_win.addstr(0, 2, "uit")
         self.help_win.addstr(0, 8, "P", curses.A_BOLD + curses.A_STANDOUT)
         self.help_win.addstr(0, 9, "ause")
+        self.help_win.addstr(0, 16, "S", curses.A_BOLD + curses.A_STANDOUT)
+        self.help_win.addstr(0, 17, "ave")
 
     def draw_players_win(self):
         """Draw players window"""
@@ -243,7 +250,6 @@ class tui:
         self.players_win.addch(self.PLAYERS_H-1, 11, curses.ACS_BTEE)
         self.players_win.addch(self.PLAYERS_H-1, 29, curses.ACS_BTEE)
         self.players_win.addch(self.PLAYERS_H-1, 47, curses.ACS_BTEE)
-
         y = 0
         for line in players_lines:
             self.players_win.addstr(y+1, 1, line, curses.A_BOLD)
@@ -267,29 +273,38 @@ class tui:
 
 # MAP ------------------------------------------------------------------
 
-    def draw_map(self, board_map, path):
+    def draw_map(self, board_map, path, heroes):
         """Draw the map"""
         board_size = len(board_map)
         self.MAP_H = board_size
         self.MAP_W = board_size
-
-        if not self.map_win:
-            self.stdscr.addstr(self.MAP_Y - 1, self.MAP_X + 1, "Map ("+str(board_size)+"X"+str(board_size)+")", curses.A_BOLD)
-            self.map_win = curses.newwin(board_size + 2, board_size + 2, self.MAP_Y, self.MAP_X)
+        self.stdscr.addstr(self.MAP_Y - 1, self.MAP_X + 1, "Map ("+str(board_size)+"X"+str(board_size)+")", curses.A_BOLD)
+        self.stdscr.noutrefresh()
+        if self.map_win:
+            x, y = self.map_win.getmaxyx()
+            if x != board_size + 2 or y != board_size + 2:
+                # resize the window as needed
+                self.map_win.erase()
+                curses.panel.update_panels()
+                self.map_win.resize(board_size + 2, board_size + 2)
+                # Time line (Cost cpu time)
+                self.draw_time_win()
+                self.map_win.noutrefresh()
+            else:
+                self.map_win.erase()
+                self.map_win.noutrefresh()
         else:
-            self.map_win.erase()
-            self.map_win.resize(board_size + 2, board_size + 2)
+            # map doesn't exist
+            self.map_win = curses.newwin(board_size + 2, board_size + 2, self.MAP_Y, self.MAP_X)
             self.map_pan = curses.panel.new_panel(self.map_win)
-
-        self.map_win.box()
-
-        if not self.time_win:
+            # Time line (Cost cpu time)
             self.draw_time_win()
-
+            curses.panel.update_panels()
+        self.map_win.box()
+        
         # highlight choosen path
         for cell in path:
             self.map_win.addch(cell[0]+1, cell[1] + 1, curses.ACS_BULLET, curses.color_pair(3) + curses.A_BOLD)
-
         # Draw map content
         y = 0
         for line in board_map:
@@ -304,7 +319,19 @@ class tui:
                 elif char == "T":
                     attr = curses.A_BOLD + curses.color_pair(5)
                 elif char == "H":
+                    # default bot color is BLUE
                     attr = curses.A_BOLD + curses.color_pair(6)
+                    for hero in heroes:
+                        # Select color for bot (cost cpu time)
+                        if hero.pos == (y, x):
+                            if hero.bot_id == 1:
+                                attr = curses.A_BOLD + curses.color_pair(6)
+                            elif hero.bot_id == 2:
+                                attr = curses.A_BOLD + curses.color_pair(8)
+                            elif hero.bot_id == 3:
+                                attr = curses.A_BOLD + curses.color_pair(9)
+                            elif hero.bot_id == 4:
+                                attr = curses.A_BOLD + curses.color_pair(10)
                 elif char == "@":
                     attr = curses.A_BOLD + curses.color_pair(2)
                 elif char == "X":
@@ -329,8 +356,15 @@ class tui:
                 for i in range(1, 21, 2):
                     # Clear player tab
                     self.players_win.hline(i, x, " ", 17)
-
-                self.players_win.addstr(1, x, str(hero.name[0:17]), curses.A_BOLD)
+                if hero.bot_id == 1:
+                    attr = curses.A_BOLD + curses.color_pair(6)
+                elif hero.bot_id == 2:
+                    attr = curses.A_BOLD + curses.color_pair(8)
+                elif hero.bot_id == 3:
+                    attr = curses.A_BOLD + curses.color_pair(9)
+                elif hero.bot_id == 4:
+                    attr = curses.A_BOLD + curses.color_pair(10)
+                self.players_win.addstr(1, x, str(hero.name[0:17]), attr)
                 self.players_win.addstr(3, x, str(hero.user_id))
                 self.players_win.addstr(5, x, str(hero.bot_id))
                 self.players_win.addstr(7, x, str(hero.elo))
@@ -492,8 +526,7 @@ class tui:
             """Cut string to parts with appropriate length"""
             self.log_entries.append(str(data)[i:i+self.LOG_W - 2])
         self.purge_log()
-        if not self.paused:
-            self.display_log()
+        self.display_log()
 
     def purge_log(self):
         """Purge log of oldest entries"""
@@ -509,7 +542,6 @@ class tui:
             for entry in self.log_entries:
                 attr = 0
                 regexp = re.compile('Error')
-
                 if regexp.search(entry) is not None:
                     attr = curses.color_pair(3) + curses.A_BOLD
                 self.log_win.hline(i+1, 1, " ", self.LOG_W - 2)
@@ -554,6 +586,7 @@ class tui:
             self.input_win.move(y, x - 1)
 
     def check_url(self, url):
+        """Return True if url is a valid url"""
         screen_y, screen_x = self.stdscr.getmaxyx()
         offset = screen_x/2 - 25
         url = url.strip(chr(0)).strip()
@@ -583,11 +616,12 @@ class tui:
         return False
 
     def check_file_path(self, path):
+        """Return True if path is an existant file name"""
         screen_y, screen_x = self.stdscr.getmaxyx()
         offset = screen_x/2 - 25
         path = path.strip(chr(0)).strip()
         if len(path) > 0:
-            # text_box.edit return a null char at start:(
+            # text_box.edit return a null char at start
             if os.path.exists(path):
                 return True
             self.menu_win.addstr(15, offset + 12, "Please, input a valid path.", curses.color_pair(3))
@@ -681,7 +715,7 @@ class tui:
         self.draw_banner()
         self.menu_win.addstr(10, offset + 19, "ARENA MODE", curses.A_BOLD)
         self.menu_win.addstr(13, offset + 8, "Number of games to play:", curses.A_BOLD)
-        text_box = curses.textpad.rectangle(self.menu_win, 12, offset + 33, 14, offset + 42)
+        curses.textpad.rectangle(self.menu_win, 12, offset + 33, 14, offset + 42)
         self.input_win = self.menu_win.subwin(1, 8, 13, offset + 34)
         self.input_win.bkgd(curses.color_pair(4) + curses.A_REVERSE)
         input_pan = curses.panel.new_panel(self.input_win)
@@ -703,7 +737,7 @@ class tui:
         self.draw_banner()
         self.menu_win.addstr(10, offset + 17, "TRAINING MODE", curses.A_BOLD)
         self.menu_win.addstr(13, offset + 8, "Number of turns:", curses.A_BOLD)
-        text_box = curses.textpad.rectangle(self.menu_win, 12, offset + 25, 14, offset + 34)
+        curses.textpad.rectangle(self.menu_win, 12, offset + 25, 14, offset + 34)
         self.input_win = self.menu_win.subwin(1, 8, 13, offset + 26)
         self.input_win.bkgd(curses.color_pair(4) + curses.A_REVERSE)
         input_pan = curses.panel.new_panel(self.input_win)
@@ -729,7 +763,7 @@ class tui:
             offset_2 = 17
         self.menu_win.addstr(10, offset + offset_2, game_mode.upper()+" MODE", curses.A_BOLD)
         self.menu_win.addstr(13, offset + 6, "Server URL:", curses.A_BOLD)
-        text_box = curses.textpad.rectangle(self.menu_win, 12, offset + 18, 14, offset + 48)
+        curses.textpad.rectangle(self.menu_win, 12, offset + 18, 14, offset + 48)
         self.input_win = self.menu_win.subwin(1, 29, 13, offset + 19)
         self.input_win.bkgd(curses.color_pair(4) + curses.A_REVERSE)
         self.input_win.addstr(0, 0, server_url)
@@ -756,7 +790,7 @@ class tui:
             offset_2 = 17
         self.menu_win.addstr(10, offset + offset_2, game_mode.upper()+" MODE", curses.A_BOLD)
         self.menu_win.addstr(13, offset + 6, "Player key:", curses.A_BOLD)
-        text_box = curses.textpad.rectangle(self.menu_win, 12, offset + 18, 14, offset + 48)
+        curses.textpad.rectangle(self.menu_win, 12, offset + 18, 14, offset + 48)
         self.input_win = self.menu_win.subwin(1, 29, 13, offset + 19)
         self.input_win.bkgd(curses.color_pair(4) + curses.A_REVERSE)
         input_pan = curses.panel.new_panel(self.input_win)
@@ -777,7 +811,7 @@ class tui:
         offset = screen_x / 2 - 25
         self.draw_banner()
         self.menu_win.addstr(13, offset - 6, "File URL:", curses.A_BOLD)
-        text_box = curses.textpad.rectangle(self.menu_win, 12, offset + 5, 14, offset + 55)
+        curses.textpad.rectangle(self.menu_win, 12, offset + 5, 14, offset + 55)
         self.input_win = self.menu_win.subwin(1, 49, 13, offset + 6)
         self.input_win.bkgd(curses.color_pair(4) + curses.A_REVERSE)
         self.input_win.addstr(0, 0, file_url)
@@ -799,7 +833,7 @@ class tui:
         offset = screen_x / 2 - 25
         self.draw_banner()
         self.menu_win.addstr(13, offset - 6, "File path:", curses.A_BOLD)
-        text_box = curses.textpad.rectangle(self.menu_win, 12, offset + 5, 14, offset + 55)
+        curses.textpad.rectangle(self.menu_win, 12, offset + 5, 14, offset + 55)
         self.input_win = self.menu_win.subwin(1, 49, 13, offset + 6)
         self.input_win.bkgd(curses.color_pair(4) + curses.A_REVERSE)
         self.input_win.addstr(0, 0, file_path)
@@ -881,16 +915,19 @@ class tui:
 
     def ask_quit(self):
         """What don't you understand in 'press q to quit' ? ;-)"""
+        keys = ["m", "s", "r"]
         self.help_win.hline(0, 1, " ", 98)
-        self.help_win.addstr(0, 1, "Press ")
-        self.help_win.addstr(0, 7, "Q", curses.A_BOLD + curses.A_STANDOUT)
-        self.help_win.addstr(0, 8, " to quit.")
+        self.help_win.addstr(0, 1, "M", curses.A_BOLD + curses.A_STANDOUT)
+        self.help_win.addstr(0, 2, "enu")
+        self.help_win.addstr(0, 8, "S", curses.A_BOLD + curses.A_STANDOUT)
+        self.help_win.addstr(0, 9, "ave")
+        self.help_win.addstr(0, 15, "R", curses.A_BOLD + curses.A_STANDOUT)
+        self.help_win.addstr(0, 16, "eplay")
         curses.doupdate()
-
-        k = None
-        while k != "q":
-            k = self.help_win.getkey()
-        self.quit_ui()
+        key = None
+        while key not in keys:
+            key = self.help_win.getkey()
+        return key
 
     def quit_ui(self):
         """Quit the UI and restore terminal state"""
@@ -902,7 +939,6 @@ class tui:
         curses.endwin()
         self.running = False
 
-# Pause U.I ----------------------------------------------------------------
-
     def pause(self):
+        """Switch pause state"""
         self.paused = not self.paused
