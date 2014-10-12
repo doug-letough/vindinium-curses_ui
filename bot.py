@@ -14,7 +14,7 @@ class Curses_ui_bot:
     """THis is your bot"""
     def __init__(self):
         self.running = True
-        self.state = None
+        self.state = {}
         self.game = None
         self.last_mine_count = 0
         self.last_gold = 0
@@ -23,20 +23,38 @@ class Curses_ui_bot:
         self.hero_last_move = None
         self.action = None
         self.last_action = None
-        self.path_to_goal = None
-        self.decision = None
-        self.last_pos = None
+        self.path_to_goal = []
+        self.decision = []
+        self.nearest_enemy_pos = None
+        self.nearest_mine_pos = None
+        self.nearest_tavern_pos = None
         self.last_nearest_enemy_pos = None
         self.last_nearest_mine_pos = None
         self.last_nearest_tavern_pos = None
+        self.last_pos = None
         # The A.I, Skynet's rising !
         self.ai = ai.AI()
 
     def move(self, state):
         """Return store data provided by A.I
         and return selected move"""
-        self.state = state
+        self.state = state        
+        # Store status for later report
+        try:
+            self.hero_last_move = self.hero_move
+            self.last_life = self.game.hero.life
+            self.last_action = self.action
+            self.last_gold = self.game.hero.gold
+            self.last_mine_count = self.game.hero.mine_count
+            self.last_pos = self.game.hero.pos
+            self.last_nearest_enemy_pos = self.nearest_enemy_pos
+            self.last_nearest_mine_pos = self.nearest_mine_pos
+            self.last_nearest_tavern_pos = self.nearest_tavern_pos
+        except AttributeError:
+            # First move has no previous move
+            pass
         self.game = Game(self.state)
+        
         ################################################################
         # Put your call to AI code here
         ################################################################
@@ -54,28 +72,22 @@ class Curses_ui_bot:
         # /AI
         ################################################################
 
-        # Store status for later report
-        self.hero_last_move = self.hero_move
-        self.last_life = self.game.hero.life
-        self.last_action = self.action
-        self.last_gold = self.game.hero.gold
-        self.last_mine_count = self.game.hero.mine_count
-        self.last_pos = self.game.hero.pos
-        self.last_nearest_enemy_pos = self.nearest_enemy_pos
-        self.last_nearest_mine_pos = self.nearest_mine_pos
-        self.last_nearest_tavern_pos = self.nearest_tavern_pos
         return self.hero_move
 
     def process_game(self, state):
         """Process state data (for replay mode)"""
         self.state = state
+        try:
+            self.hero_last_move = self.hero_move
+            self.last_life = self.game.hero.life
+            self.last_action = self.action
+            self.last_gold = self.game.hero.gold
+            self.last_mine_count = self.game.hero.mine_count
+            self.last_nearest_enemy_pos = self.nearest_enemy_pos
+            self.last_nearest_mine_pos = self.nearest_mine_pos
+            self.last_nearest_tavern_pos = self.nearest_tavern_pos
+        except AttributeError:
+            # First move has no previous move and no game
+            pass
         self.game = Game(self.state)
-        self.hero_last_move = self.hero_move
-        self.last_life = self.game.hero.life
-        self.last_action = self.action
-        self.last_gold = self.game.hero.gold
-        self.last_mine_count = self.game.hero.mine_count
-        self.last_pos = self.game.hero.pos
-        self.last_nearest_enemy_pos = self.nearest_enemy_pos
-        self.last_nearest_mine_pos = self.nearest_mine_pos
-        self.last_nearest_tavern_pos = self.nearest_tavern_pos
+        

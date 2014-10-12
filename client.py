@@ -9,13 +9,14 @@ import select
 import time
 import os
 import ConfigParser
+import ast
 
 TIMEOUT = 15
 
 
 class Config:
     def __init__(self, game_mode="training", server_url="http://vindinium.org",
-                        number_of_games=1, number_of_turns=300, map_name="m1", key=None):
+                        number_of_games=1, number_of_turns=300, map_name="m3", key=None):
         self.game_mode = game_mode
         self.number_of_games = number_of_games
         self.number_of_turns = number_of_turns
@@ -37,9 +38,11 @@ class Client:
         self.states = []
         self.delay = 0.5  # Delay in s between turns in replay mode
 
-    def _print(self, *args, **kwargs):
+    def pprint(self, *args, **kwargs):
         """Display args in the bot gui or
-        print it if no gui is available"""
+        print it if no gui is available
+        For debugging purpose consider using self.gui.append_log()
+        """
         printable = ""
         for arg in args:
             printable = printable + str(arg)+" "
@@ -58,7 +61,7 @@ class Client:
             # bot has a gui so we add this entries to its log panel
             if self.gui.log_win:
                 self.gui.append_log(printable)
-                self.gui.log_win.refresh()
+                self.gui.refresh()
         else:
             print printable
 
@@ -76,7 +79,7 @@ class Client:
                 self.config.key = config_parser.get("game", "key")
                 self.config.number_of_games = config_parser.getint("game", "number_of_games")
                 self.config.number_of_turns = config_parser.getint("game", "number_of_turns")
-        except Exception as e:
+        except (IOError, ConfigParser.Error) as e:
             self.gui.quit_ui()
             print "Error while loading config file", config_file_name, ":", e
             quit(1)
@@ -94,24 +97,39 @@ class Client:
                 for key, value in self.config.__dict__.items():
                     config_parser.set("game", key, value)
                 config_parser.write(config_file)
-        except Exception as e:
+        except (IOError, ConfigParser.Error) as e:
             self.gui.quit_ui()
             print "Error  while saving config file", config_file_name, ":", e
+            quit(1)
+
+    def load_game(self, game_file_name):
+        """Load saved game from file"""
+        # Reset our bot and self.states
+        self.states = []
+        try:
+            with open(game_file_name, "r") as game_file:
+                for line in game_file.readlines():
+                    if len(line.strip(chr(0)).strip()) > 0:
+                        self.states.append(ast.literal_eval(line))
+            self.state = self.states[0]
+        except (IOError, IndexError) as e:
+            self.gui.quit_ui()
+            print "Error while loading game file", game_file_name, ":", e
             quit(1)
 
     def save_game(self):
         """Save game to file in ~/.vindinium/save/<game ID>"""
         user_home_dir = os.path.expanduser("~")
-        try :
+        try:
             # Get game_id from  game sate
-            game_id =  self.state['game']["id"]
+            game_id = self.state['game']["id"]
         except KeyError:
             try:
                 # State has not been downloaded
                 # Try to get game_id from last state saved if any
-                game_id =  self.states[0]['game']["id"]
+                game_id = self.states[0]['game']["id"]
             except IndexError:
-                self._print("No states available for this game, unable to save game.")
+                self.pprint("No states available for this game, unable to save game.")
         game_file_name = os.path.join(user_home_dir, ".vindinium", "save", game_id)
         try:
             if not os.path.isdir(os.path.join(user_home_dir, ".vindinium", "save")):
@@ -119,12 +137,48 @@ class Client:
             with open(game_file_name, "w") as game_file:
                 for state in self.states:
                     game_file.write(str(state)+"\n")
-            self._print("Game saved: "+game_file_name)
+            self.pprint("Game saved: "+game_file_name)
         except IOError as e:
-            self.gui._print("Error  while saving game file", game_file_name, ":", e)
+            self.gui.append_log("Error  while saving game file", game_file_name, ":", e)
+
+    def download_game_file(self, game_file_url):
+        # I will treat no other forbidden char than space char.
+        game_file_url = game_file_url.replace(" ", "%20")
+        # 
+        # FIXME :
+        # 
+        # Game file available online at http://vindinium.org/events/<gameId>
+        # are not parsable by ast.literal_eval() ????
+        #
+        # self.session = requests.session()
+        # response = self.session.get(game_file_url, timeout=10*60)
+        # if response.status_code == 200:
+        #    for line in response.text:
+        #        line = line.strip(chr(0)).strip()
+        #        if len(line) > 0:
+        #            self.states.append(ast.literal_eval(line))
+        #            try:
+        #                print self.states[len(self.states)-1], type(self.states[len(self.states)-1])
+        #            except:
+        #                pass
+        self.gui.quit_ui()
+        os.system('cls' if os.name == 'nt' else 'clear')
+        print "********************************************************"
+        print "*            Feature not available yet.                *"
+        print "*           Please wait for U.I restart                *"
+        print "********************************************************"
+        for i in reversed(range(1, 6)):
+            print i
+            time.sleep(1)
+        self.start_ui()
 
     def start_ui(self):
         """Start the curses UI"""
+        self.bot = Curses_ui_bot()
+        self.running = True
+        self.game_url = None
+        self.states = []
+        self.state = None
         self.gui = ui.tui()
         choice = self.gui.ask_main_menu()
         if choice == '1':
@@ -134,14 +188,17 @@ class Client:
             self.play()
         elif choice == '2':
             # Setup game
+            self.config = Config()
             choice = self.gui.ask_game_mode()
             if choice == '1':
                 # Arena mode config
                 self.config.game_mode = "arena"
+                self.config.number_of_turns = 300
                 self.config.number_of_games = self.gui.ask_number_games()
             elif choice == '2':
                 # Training mode config
                 self.config.game_mode = "training"
+                self.config.number_of_games = 1
                 self.config.number_of_turns = self.gui.ask_number_turns()
                 self.config.map_name = "m"+str(self.gui.ask_map())
             self.config.server_url = self.gui.ask_server_url(self.config.game_mode)
@@ -149,28 +206,36 @@ class Client:
             if self.gui.ask_save_config():
                 self.save_config()
             if self.gui.ask_play_game():
-                # Start game U.I
                 self.gui.draw_game_windows()
-                # Launch game
                 self.play()
             else:
                 self.start_ui()
         elif choice == '3':
             # Load game from file
-            game_file_path = self.gui.ask_game_file_path()
-            self.gui.quit_ui()
-            print game_file_path, len(game_file_path)
-            exit(0)
+            game_file_name = self.gui.ask_game_file_path()
+            self.load_game(game_file_name)
+            self.gui.draw_game_windows()
+            self.replay()
         elif choice == '4':
             # Load game from URL
             game_file_url = self.gui.ask_game_file_url()
-            self.gui.quit_ui()
-            print game_file_url, len(game_file_url)
-            exit(0)
+            self.download_game_file(game_file_url)
+            self.gui.draw_game_windows()
+            self.replay()
         elif choice == '5':
             # quit
             self.gui.quit_ui()
             exit(0)
+        if self.gui.running and self.gui.help_win:
+            key = None
+            while key != 'm':
+                key = self.gui.ask_quit()
+                if key == 's':
+                    self.save_game()
+                elif key == 'r':
+                    self.replay()
+        self.gui.clear()
+        self.start_ui()
 
     def play(self):
         """Play all games"""
@@ -178,67 +243,42 @@ class Client:
             # start a new game
             if self.bot.running:
                 self.start_game()
-                self._print("Game finished: "+str(i+1)+"/"+str(self.config.number_of_games))
-        if self.gui.running and self.gui.help_win:
-            key = None
-            while key != 'q':
-                key = self.gui.ask_quit() 
-                if key == 's':
-                    self.save_game()
-                elif key == 'r':
-                    self.replay()
-            self.gui.quit_ui()
-            quit(0)
+                self.pprint("Game finished: "+str(i+1)+"/"+str(self.config.number_of_games))
 
     def replay(self):
         """Replay last game"""
+        # Restart with a new bot
+        self.bot = Curses_ui_bot()
         for i in range(self.config.number_of_games):
             # start a new game
             if self.bot.running:
                 self.restart_game()
-                self._print("Game finished.")
-        if self.gui.running and self.gui.help_win:
-            key = None
-            while key != 'q':
-                key = self.gui.ask_quit() 
-                if key == 's':
-                    self.save_game()
-                elif key == 'r':
-                    self.replay()
-            self.gui.quit_ui()
-            quit(0)
+                self.pprint("Game finished.")
 
     def start_game(self):
         """Starts a game with all the required parameters"""
         self.running = True
         # Delete prévious game states
         self.states = []
+        # Restart game with brand new bot
+        self.bot = Curses_ui_bot()
         # Default move is no move !
         direction = "Stay"
         # Create a requests session that will be used throughout the game
+        self.pprint('Connecting...')
         self.session = requests.session()
         if self.config.game_mode == 'arena':
-            self._print('Connecting and waiting for other players to join...')
+            self.pprint('Waiting for other players to join...')
         try:
             # Get the initial state
             self.state = self.get_new_game_state()
             self.states.append(self.state)
-            self._print("Playing at: " + self.state['viewUrl'])
-        except Exception as e:
-            self._print("Error: Please verify your settings.")
-            self._print("Settings:", self.config.__dict__)
-            self._print("Game state:", self.state)
+            self.pprint("Playing at: " + self.state['viewUrl'])
+        except (KeyError, TypeError) as e:
+            self.pprint("Error: Please verify your settings.")
+            self.pprint("Settings:", self.config.__dict__)
             self.running = False
-            key = None
-            while key != 'q':
-                key = self.gui.ask_quit() 
-                if key == 's':
-                    self.save_game()
-                elif key == 'r':
-                    self.replay()
-            self.gui.quit_ui()
-            quit(0)
-
+            return
         for i in range(self.config.number_of_turns + 1):
             if self.running:
                 # Choose a move
@@ -248,7 +288,6 @@ class Client:
                         line = sys.stdin.read(1)
                         if line.strip() == "q":
                             self.running = False
-                            self.gui.quit_ui()
                             self.bot.running = False
                             break
                         elif line.strip() == "p":
@@ -260,22 +299,12 @@ class Client:
                         self.display_game()
                 except Exception, e:
                     if self.gui.log_win:
-                        self._print("Error at client.start_game:", str(e))
-                        self._print("If your code or your settings are not responsible of this error, please report this error to:")
-                        self._print("doug.letough@free.fr.")
+                        self.pprint("Error at client.start_game:", str(e))
+                        self.pprint("If your code or your settings are not responsible of this error, please report this error to:")
+                        self.pprint("doug.letough@free.fr.")
                         self.gui.pause()
-                        self.running = False
-                    if self.gui.help_win:
-                        key = None
-                        while key != 'q':
-                            key = self.gui.ask_quit()
-                            self.gui.append_log(key)
-                            if key == 's':
-                                self.save_game()
-                            elif key == 'r':
-                                self.replay()
-                        self.gui.quit_ui()
-                        quit(0)
+                    self.running = False
+                    return
                 if not self.is_game_over():
                     # Send the move and receive the updated game state
                     self.game_url = self.state['playUrl']
@@ -290,21 +319,13 @@ class Client:
         try:
             # Get the initial state
             self.state = self.states[0]
-            self._print("Playing at: " + self.state['viewUrl'])
+            self.pprint("Replaying: " + self.state['viewUrl'])
         except (IndexError, KeyError) as e:
-            self._print("Error while trying to replay game.")
-            self._print("Game state:", self.state)
+            self.pprint("Error while trying to replay game.")
+            self.pprint("Game states length:", len(self.states))
             self.running = False
-            key = None
-            while key != 'q':
-                key = self.gui.ask_quit() 
-                if key == 's':
-                    self.save_game()
-                elif key == 'r':
-                    self.replay()
-            self.gui.quit_ui()
-            quit(0)
-
+            return
+        self.gui.draw_help_win()
         for state in self.states:
             self.state = state
             if self.running:
@@ -315,9 +336,7 @@ class Client:
                         line = sys.stdin.read(1)
                         if line.strip() == "q":
                             self.running = False
-                            self.gui.quit_ui()
                             self.bot.running = False
-                            quit(0)
                             break
                         elif line.strip() == "p":
                             self.gui.pause()
@@ -328,22 +347,12 @@ class Client:
                         self.display_game()
                 except Exception, e:
                     if self.gui.log_win:
-                        self._print("Error at client.restart_game:", str(e))
-                        self._print("If your code or your settings are not responsible of this error, please report this error to:")
-                        self._print("doug.letough@free.fr.")
+                        self.pprint("Error at client.restart_game:", str(e))
+                        self.pprint("If your code or your settings are not responsible of this error, please report this error to:")
+                        self.pprint("doug.letough@free.fr.")
                         self.gui.pause()
-                        self.running = False
-                    if self.gui.help_win:
-                        key = None
-                        while key != 'q':
-                            key = self.gui.ask_quit()
-                            self.gui.append_log(key)
-                            if key == 's':
-                                self.save_game()
-                            elif key == 'r':
-                                self.replay()
-                        self.gui.quit_ui()
-                        quit(0)
+                    self.running = False
+                    return
                 if not self.is_game_over():
                     # Replay next turn
                     self.game_url = state['playUrl']
@@ -362,34 +371,38 @@ class Client:
             params = {'key': self.config.key}
             api_endpoint = '/api/arena'
         # Wait for 10 minutes
-        r = self.session.post(self.config.server_url + api_endpoint, params, timeout=10*60)
-        if r.status_code == 200:
-            return r.json()
-        else:
-            self._print("Error when creating the game:", str(r.status_code))
+        try:
+            r = self.session.post(self.config.server_url + api_endpoint, params, timeout=10*60)
+            if r.status_code == 200:
+                return r.json()
+            else:
+                self.pprint("Error when creating the game:", str(r.status_code))
+                self.running = False
+                self.pprint(r.text)
+        except requests.ConnectionError as e:
+            self.pprint("Error when creating the game:", e)
             self.running = False
-            self._print(r.text)
 
     def is_game_over(self):
         """Return True if game defined by state is over"""
         try:
             return self.state['game']['finished']
-        except Exception:
+        except (TypeError, KeyError):
             return True
 
     def send_move(self, direction):
         """Send a move to the server
         Moves can be one of: 'Stay', 'North', 'South', 'East', 'West'"""
         try:
-            r = self.session.post(self.game_url, {'dir': direction}, timeout=TIMEOUT)
-            if r.status_code == 200:
-                return r.json()
+            response = self.session.post(self.game_url, {'dir': direction}, timeout=TIMEOUT)
+            if response.status_code == 200:
+                return response.json()
             else:
-                self._print("Error HTTP ", str(r.status_code), ": ", r.text)
+                self.pprint("Error HTTP ", str(response.status_code), ": ", response.text)
                 self.running = False
                 return {'game': {'finished': True}}
         except requests.exceptions.RequestException as e:
-            self._print("Error at client.move;", str(e))
+            self.pprint("Error at client.move;", str(e))
             self.running = False
             return {'game': {'finished': True}}
 
@@ -397,7 +410,7 @@ class Client:
         """Display game data on the U.I"""
         if not self.gui.paused:
             # Draw the map
-            self.gui.draw_map(self.bot.game.board_map, self.bot.path_to_goal)
+            self.gui.draw_map(self.bot.game.board_map, self.bot.path_to_goal, self.bot.game.heroes)
             # Print informations about other players
             self.gui.display_heroes(self.bot.game.heroes, self.bot.game.hero.user_id)
             # Use the following methods to display datas
@@ -424,16 +437,15 @@ class Client:
             self.gui.display_last_nearest_mine(self.bot.last_nearest_mine_pos)
             self.gui.display_last_nearest_hero(self.bot.last_nearest_enemy_pos)
             self.gui.display_last_nearest_tavern(self.bot.last_nearest_tavern_pos)
-            # Print what you think is usefull to understand
-            # how the decision has been taken to make this move
-            # If too long the string will be truncated to fit
-            # in the display
+            # Print a *list of tuples* representing what you think can be usefull
+            # i.e an heuristic result
             self.gui.display_decision(self.bot.decision)
-            # Print the estimated path to reach the goal if any
+            # Print *list of tuples* representing
+            # the estimated path to reach the goal if any.
             # If too long the path will be truncated to fit
             # in the display
             self.gui.display_path(self.bot.path_to_goal)
-            # Move cursor along the time line
+            # Move cursor along the time line (cost cpu time)
             cursor_pos = int(float(self.gui.TIME_W) / self.bot.game.max_turns * self.bot.game.turn)
             self.gui.move_time_cursor(cursor_pos)
             # Finally display selected move

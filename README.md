@@ -35,7 +35,18 @@ http://www.vindinium.org/
  - ui.py                         The curses U.I. source code
 
 
-3 - Prerequities:
+3 - Goal:
+-----------------
+
+    The main goal of this project is to provide a solution to people r
+    unning their bots on a server and who'd like to view their 
+    bots' activity in real-time without using the http connection 
+    graciously provided by Vindinium.
+
+    This U.I to Vindinium is usable in a terminal and using an ssh 
+    connection also permits reducing network latency..
+
+4 - Prerequities:
 -----------------
 
     a - An Unix-like system (Linux/BSD/MacOSX/...)
@@ -53,7 +64,7 @@ http://www.vindinium.org/
     d - The python-curses modules
 
 
-4 - How to make it work:
+5 - How to make it work:
 ------------------------
 
     The ai.py file contains the code of your bot.
@@ -80,8 +91,18 @@ http://www.vindinium.org/
             some basic infos to get connected to the server.
 
 
-    Note : The code provided here do NOT contains any AI or path-finding code               
-    but only a random AI. However it would run fine as is but would only win by mistake :)   
+    You may post your question about this project to doug.letough@free.fr 
+    or to the #vindinium freenode.net IRC channel. The latter may be a 
+    faster way to obtain answers but an email should always be privileged 
+    as it guaranties an first-hand answer.
+
+5 - Note :
+----------
+
+    The code provided here do NOT contains any AI or path-finding code 
+    but only a random AI (hey, This YOUR job to put it up). 
+    
+    However it would run fine as is but would only win by mistake :)   
 
 
 
