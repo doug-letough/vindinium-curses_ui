@@ -1,3 +1,7 @@
+2014-10-12:
+    - Added end game summary
+    - Added live winner identification
+
 2014-10-11:
     - Added save game ability
     - Added load game from file ability
