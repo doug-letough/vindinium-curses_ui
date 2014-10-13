@@ -559,15 +559,17 @@ class tui:
     def display_log(self):
         """Display log entries"""
         if self.log_win:
-            i = 0
-            for entry in self.log_entries:
-                attr = 0
-                regexp = re.compile('Error')
-                if regexp.search(entry) is not None:
-                    attr = curses.color_pair(3) + curses.A_BOLD
-                self.log_win.hline(i+1, 1, " ", self.LOG_W - 2)
-                self.log_win.addstr(i+1, 1, entry, attr)
-                i += 1
+            for i in range(1, self.LOG_H - 2):
+                self.log_win.hline(i, 1, " ", self.LOG_W - 2)
+                try:
+                    attr = 0
+                    regexp = re.compile('Error')
+                    if regexp.search(self.log_entries[i]) is not None:
+                        attr = curses.color_pair(3) + curses.A_BOLD
+                    self.log_win.addstr(i, 1, self.log_entries[i], attr)
+                except IndexError:
+                    # No more entries in log_entries
+                    pass
 
 # Setup windows --------------------------------------------------------
     def ask_action(self):
