@@ -384,19 +384,19 @@ class tui:
             if int(hero.gold) > max_gold:
                 max_gold = int(hero.gold)
                 gold_winner =  str(hero.bot_id)
-                gold_pos = x
+                gold_pos = x - 2
             if int(hero.mine_count) > max_mine:
                 max_mine = int(hero.mine_count)
-                mine_winner =  str(hero.bot_id)
-                mine_pos = x
+                mine_winner = str(hero.bot_id)
+                mine_pos = x - 2
         if gold_winner == str(bot_id):
             self.data_win.addstr(17, 21, "$", curses.A_BOLD + curses.color_pair(4))
-        else:
-            self.players_win.addstr(15, gold_pos + 16, "$", curses.A_BOLD + curses.color_pair(4))
+        elif gold_pos > 0:
+            self.players_win.addstr(15, gold_pos, "$", curses.A_BOLD + curses.color_pair(4))
         if mine_winner == str(bot_id):
             self.data_win.addstr(15, 21, "*", curses.A_BOLD + curses.color_pair(4))
-        else:
-            self.players_win.addstr(13, mine_pos + 16, "*", curses.A_BOLD + curses.color_pair(4))
+        elif mine_pos > 0:
+            self.players_win.addstr(13, mine_pos, "*", curses.A_BOLD + curses.color_pair(4))
 
     def display_url(self, url):
         url = url[url.rfind("/")+1:]
