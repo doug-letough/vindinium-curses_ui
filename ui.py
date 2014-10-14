@@ -60,12 +60,7 @@ class tui:
         self.menu_win = None
         self.time_win = None
         self.log_entries = []
-        try:
-            self.stdscr = curses.initscr()
-        except curses.error as e:
-            print "Error while trying to init curses."
-            self.quit_ui()
-            quit(1)
+        self.stdscr = curses.initscr()
         curses.start_color()
         # Basic color set
         curses.init_pair(1, curses.COLOR_WHITE, curses.COLOR_WHITE)
