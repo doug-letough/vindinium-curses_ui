@@ -60,7 +60,12 @@ class tui:
         self.menu_win = None
         self.time_win = None
         self.log_entries = []
-        self.stdscr = curses.initscr()
+        try:
+            self.stdscr = curses.initscr()
+        except curses.error as e:
+            print "Error while trying to init curses."
+            self.quit_ui()
+            quit(1)
         curses.start_color()
         # Basic color set
         curses.init_pair(1, curses.COLOR_WHITE, curses.COLOR_WHITE)
@@ -79,10 +84,10 @@ class tui:
             # Try resizing terminal
             curses.resizeterm(MIN_LINES, MIN_COLS)
             if not curses.is_term_resized(MIN_LINES, MIN_COLS):
+                self.quit_ui()
                 print "Unable to change your terminal size. Your terminal must be at least", \
                         MIN_LINES, "lines and", MIN_COLS, "columns and it actually has", \
                         screen_y, "lines and", screen_x, "columns."
-                self.quit_ui()
                 quit(1)
         # Screen is up
         curses.noecho()
