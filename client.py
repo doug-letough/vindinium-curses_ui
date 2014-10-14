@@ -241,7 +241,7 @@ class Client:
             if self.bot.running:
                 self.start_game()
                 gold = 0
-                winner = ""
+                winner = "Noone"
                 for player in self.bot.game.heroes:
                     if int(player.gold) > gold:
                         winner = player.name

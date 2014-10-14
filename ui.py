@@ -554,7 +554,7 @@ class tui:
         """Purge log of oldest entries"""
         diff = len(self.log_entries) - (self.LOG_H - self.HELP_H - 2)
         if diff > 0:
-            self.log_entries = self.log_entries[len(self.log_entries) - diff:len(self.log_entries)]
+            self.log_entries = self.log_entries[diff - 1:len(self.log_entries)]
 
     def display_log(self):
         """Display log entries"""
