@@ -283,10 +283,13 @@ class Client:
             self.pprint('Waiting for other players to join...')
         try:
             # Get the initial state
+            # May raise error if self.get_new_state() returns
+            # no data or inconsistent data (network problem)
             self.state = self.get_new_game_state()
             self.states.append(self.state)
             self.pprint("Playing at: " + self.state['viewUrl'])
         except (KeyError, TypeError) as e:
+            # We can not play a game without a state
             self.pprint("Error: Please verify your settings.")
             self.pprint("Settings:", self.config.__dict__)
             self.running = False

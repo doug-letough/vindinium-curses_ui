@@ -301,8 +301,9 @@ class tui:
             self.draw_time_win()
             curses.panel.update_panels()
         self.map_win.box()
-        
         # highlight choosen path
+        if path is None:
+            path = []
         for cell in path:
             self.map_win.addch(cell[0]+1, cell[1] + 1, curses.ACS_BULLET, curses.color_pair(3) + curses.A_BOLD)
         # Draw map content
@@ -427,18 +428,35 @@ class tui:
         self.data_win.addstr(11, 23, str(pos))
 
     def display_action(self, action):
+        attr = 0
+        if action == "wait":
+            # Display "wait" in bold red
+            attr = attr = curses.color_pair(3) + curses.A_BOLD
         self.clear_data_cell((21, 14), 8)
-        self.data_win.addstr(21, 14, str(action))
+        self.data_win.addstr(21, 14, str(action), attr)
 
     def display_last_action(self, action):
+        attr = 0
+        if action == "wait":
+            # Display "wait" in bold red
+            attr = attr = curses.color_pair(3) + curses.A_BOLD
+        self.clear_data_cell((21, 14), 8)
         self.clear_data_cell((21, 23), 8)
-        self.data_win.addstr(21, 23, str(action))
+        self.data_win.addstr(21, 23, str(action), attr)
 
     def display_move(self, move):
+        attr = 0
+        if move == "Stay":
+            # Display "Stay" in bold red
+            attr = attr = curses.color_pair(3) + curses.A_BOLD
         self.clear_data_cell((19, 14), 8)
         self.data_win.addstr(19, 14, str(move))
 
     def display_last_move(self, move):
+        attr = 0
+        if move == "Stay":
+            # Display "Stay" in bold red
+            attr = attr = curses.color_pair(3) + curses.A_BOLD
         self.clear_data_cell((19, 23), 8)
         self.data_win.addstr(19, 23, str(move))
 
