@@ -248,11 +248,11 @@ class Client:
                     if int(player.gold) > gold:
                         winner = player.name
                         gold = int(player.gold)
-                        if player.user_id == self.bot.game.hero.user_id:
+                        if player.bot_id == self.bot.game.hero.bot_id:
                             self.victory += 1
-                self.pprint("**** " + winner + " wins. ****")
+                self.pprint("* " + winner + " wins. ******************")
                 self.pprint("Won: " + str(self.victory) + "/" + str(self.config.number_of_games) +\
-                            "| Timed out: " + str(self.time_out) + "/" + str(self.config.number_of_games))
+                            " | Timed out: " + str(self.time_out) + "/" + str(self.config.number_of_games))
                 self.pprint("Game finished: "+str(i+1) + "/" + str(self.config.number_of_games))
 
     def replay(self):
