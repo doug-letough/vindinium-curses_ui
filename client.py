@@ -37,6 +37,8 @@ class Client:
         self.bot = Curses_ui_bot()  # Our bot
         self.states = []
         self.delay = 0.5  # Delay in s between turns in replay mode
+        self.victory = 0 
+        self.time_out = 0
 
     def pprint(self, *args, **kwargs):
         """Display args in the bot gui or
@@ -246,8 +248,12 @@ class Client:
                     if int(player.gold) > gold:
                         winner = player.name
                         gold = int(player.gold)
+                        if player.user_id == self.bot.game.hero.user_id:
+                            self.victory += 1
                 self.pprint("**** " + winner + " wins. ****")
-                self.pprint("Game finished: "+str(i+1)+"/"+str(self.config.number_of_games))
+                self.pprint("Won: " + str(self.victory) + "/" + str(self.config.number_of_games) +\
+                            "| Timed out: " + str(self.time_out) + "/" + str(self.config.number_of_games))
+                self.pprint("Game finished: "+str(i+1) + "/" + str(self.config.number_of_games))
 
     def replay(self):
         """Replay last game"""
@@ -258,7 +264,7 @@ class Client:
             if self.bot.running:
                 self.restart_game()
                 gold = 0
-                winner = ""
+                winner = "Noone"
                 for player in self.bot.game.heroes:
                     if int(player.gold) > gold:
                         winner = player.name
@@ -414,6 +420,7 @@ class Client:
                 return response.json()
             else:
                 self.pprint("Error HTTP ", str(response.status_code), ": ", response.text)
+                self.time_out += 1
                 self.running = False
                 return {'game': {'finished': True}}
         except requests.exceptions.RequestException as e:
