@@ -1,7 +1,5 @@
 TODO
 -----
- - Add game summary at end of game
- - Add currently winning player identification mark while game is running
  - Add Windows support
  - Allow user to browse turns while replaying game
  - Allow user to increase/decrease display time while replaying game

@@ -79,10 +79,10 @@ class tui:
             # Try resizing terminal
             curses.resizeterm(MIN_LINES, MIN_COLS)
             if not curses.is_term_resized(MIN_LINES, MIN_COLS):
+                self.quit_ui()
                 print "Unable to change your terminal size. Your terminal must be at least", \
                         MIN_LINES, "lines and", MIN_COLS, "columns and it actually has", \
                         screen_y, "lines and", screen_x, "columns."
-                self.quit_ui()
                 quit(1)
         # Screen is up
         curses.noecho()
@@ -301,8 +301,9 @@ class tui:
             self.draw_time_win()
             curses.panel.update_panels()
         self.map_win.box()
-        
         # highlight choosen path
+        if path is None:
+            path = []
         for cell in path:
             self.map_win.addch(cell[0]+1, cell[1] + 1, curses.ACS_BULLET, curses.color_pair(3) + curses.A_BOLD)
         # Draw map content
@@ -351,8 +352,14 @@ class tui:
 
     def display_heroes(self, heroes, bot_id):
         x = 12
+        gold_winner = ""
+        max_gold = 0
+        gold_pos = 0
+        mine_winner = ""
+        max_mine = 0
+        mine_pos = 0
         for hero in heroes:
-            if hero.user_id != bot_id:
+            if hero.bot_id != bot_id:
                 for i in range(1, 21, 2):
                     # Clear player tab
                     self.players_win.hline(i, x, " ", 17)
@@ -374,7 +381,23 @@ class tui:
                 self.players_win.addstr(15, x, str(hero.gold))
                 self.players_win.addstr(17, x, str(hero.spawn_pos))
                 self.players_win.addstr(19, x, str(hero.crashed))
-                x += 18
+                x += 18 #  player horizontal offset
+            if int(hero.gold) > max_gold:
+                max_gold = int(hero.gold)
+                gold_winner =  str(hero.bot_id)
+                gold_pos = x - 2
+            if int(hero.mine_count) > max_mine:
+                max_mine = int(hero.mine_count)
+                mine_winner = str(hero.bot_id)
+                mine_pos = x - 2
+        if gold_winner == str(bot_id):
+            self.data_win.addstr(17, 21, "$", curses.A_BOLD + curses.color_pair(4))
+        elif gold_pos > 0:
+            self.players_win.addstr(15, gold_pos, "$", curses.A_BOLD + curses.color_pair(4))
+        if mine_winner == str(bot_id):
+            self.data_win.addstr(15, 21, "*", curses.A_BOLD + curses.color_pair(4))
+        elif mine_pos > 0:
+            self.players_win.addstr(13, mine_pos, "*", curses.A_BOLD + curses.color_pair(4))
 
     def display_url(self, url):
         url = url[url.rfind("/")+1:]
@@ -405,18 +428,35 @@ class tui:
         self.data_win.addstr(11, 23, str(pos))
 
     def display_action(self, action):
+        attr = 0
+        if action == "wait":
+            # Display "wait" in bold red
+            attr = attr = curses.color_pair(3) + curses.A_BOLD
         self.clear_data_cell((21, 14), 8)
-        self.data_win.addstr(21, 14, str(action))
+        self.data_win.addstr(21, 14, str(action), attr)
 
     def display_last_action(self, action):
+        attr = 0
+        if action == "wait":
+            # Display "wait" in bold red
+            attr = attr = curses.color_pair(3) + curses.A_BOLD
+        self.clear_data_cell((21, 14), 8)
         self.clear_data_cell((21, 23), 8)
-        self.data_win.addstr(21, 23, str(action))
+        self.data_win.addstr(21, 23, str(action), attr)
 
     def display_move(self, move):
+        attr = 0
+        if move == "Stay":
+            # Display "Stay" in bold red
+            attr = attr = curses.color_pair(3) + curses.A_BOLD
         self.clear_data_cell((19, 14), 8)
         self.data_win.addstr(19, 14, str(move))
 
     def display_last_move(self, move):
+        attr = 0
+        if move == "Stay":
+            # Display "Stay" in bold red
+            attr = attr = curses.color_pair(3) + curses.A_BOLD
         self.clear_data_cell((19, 23), 8)
         self.data_win.addstr(19, 23, str(move))
 
@@ -532,21 +572,22 @@ class tui:
         """Purge log of oldest entries"""
         diff = len(self.log_entries) - (self.LOG_H - self.HELP_H - 2)
         if diff > 0:
-            for i in range(diff):
-                self.log_entries.remove(self.log_entries[i])
+            self.log_entries = self.log_entries[diff - 1:len(self.log_entries)]
 
     def display_log(self):
         """Display log entries"""
         if self.log_win:
-            i = 0
-            for entry in self.log_entries:
-                attr = 0
-                regexp = re.compile('Error')
-                if regexp.search(entry) is not None:
-                    attr = curses.color_pair(3) + curses.A_BOLD
-                self.log_win.hline(i+1, 1, " ", self.LOG_W - 2)
-                self.log_win.addstr(i+1, 1, entry, attr)
-                i += 1
+            for i in range(1, self.LOG_H - 2):
+                self.log_win.hline(i, 1, " ", self.LOG_W - 2)
+                try:
+                    attr = 0
+                    regexp = re.compile('Error')
+                    if regexp.search(self.log_entries[i]) is not None:
+                        attr = curses.color_pair(3) + curses.A_BOLD
+                    self.log_win.addstr(i, 1, self.log_entries[i], attr)
+                except IndexError:
+                    # No more entries in log_entries
+                    pass
 
 # Setup windows --------------------------------------------------------
     def ask_action(self):

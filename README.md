@@ -84,6 +84,8 @@ http://www.vindinium.org/
        
     b - A terminal or a terminal emulator such xterm able to display 
         colors and supports least a 48 lines X 150 columns resolution.
+        This software will work nicely with terminal multiplexers like
+        screen or tmux
 
     c - Python 2.7.x
         This Program will simply NOT run with Python3.

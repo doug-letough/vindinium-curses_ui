@@ -23,7 +23,7 @@ class Hero:
         self.crashed = hero['crashed']
         self.mine_count = hero['mineCount']
         self.mines = []
-        self.name = hero['name']
+        self.name = hero['name'].encode("utf-8")
 
 
 class Game:

@@ -37,6 +37,8 @@ class Client:
         self.bot = Curses_ui_bot()  # Our bot
         self.states = []
         self.delay = 0.5  # Delay in s between turns in replay mode
+        self.victory = 0 
+        self.time_out = 0
 
     def pprint(self, *args, **kwargs):
         """Display args in the bot gui or
@@ -156,11 +158,8 @@ class Client:
         #    for line in response.text:
         #        line = line.strip(chr(0)).strip()
         #        if len(line) > 0:
-        #            self.states.append(ast.literal_eval(line))
-        #            try:
-        #                print self.states[len(self.states)-1], type(self.states[len(self.states)-1])
-        #            except:
-        #                pass
+        #            self.states.append(ast.literal_eval(line)) <<< Here is the problem
+        #           
         self.gui.quit_ui()
         os.system('cls' if os.name == 'nt' else 'clear')
         print "********************************************************"
@@ -243,7 +242,18 @@ class Client:
             # start a new game
             if self.bot.running:
                 self.start_game()
-                self.pprint("Game finished: "+str(i+1)+"/"+str(self.config.number_of_games))
+                gold = 0
+                winner = "Noone"
+                for player in self.bot.game.heroes:
+                    if int(player.gold) > gold:
+                        winner = player.name
+                        gold = int(player.gold)
+                        if player.bot_id == self.bot.game.hero.bot_id:
+                            self.victory += 1
+                self.pprint("* " + winner + " wins. ******************")
+                self.pprint("Won: " + str(self.victory) + "/" + str(self.config.number_of_games) +\
+                            " | Timed out: " + str(self.time_out) + "/" + str(self.config.number_of_games))
+                self.pprint("Game finished: "+str(i+1) + "/" + str(self.config.number_of_games))
 
     def replay(self):
         """Replay last game"""
@@ -253,6 +263,14 @@ class Client:
             # start a new game
             if self.bot.running:
                 self.restart_game()
+                gold = 0
+                winner = "Noone"
+                for player in self.bot.game.heroes:
+                    if int(player.gold) > gold:
+                        winner = player.name
+                        gold = int(player.gold)
+                self.pprint("**** " + winner + " wins. ****")
+                self.pprint("Game finished: "+str(i+1)+"/"+str(self.config.number_of_games))
                 self.pprint("Game finished.")
 
     def start_game(self):
@@ -271,10 +289,13 @@ class Client:
             self.pprint('Waiting for other players to join...')
         try:
             # Get the initial state
+            # May raise error if self.get_new_state() returns
+            # no data or inconsistent data (network problem)
             self.state = self.get_new_game_state()
             self.states.append(self.state)
             self.pprint("Playing at: " + self.state['viewUrl'])
         except (KeyError, TypeError) as e:
+            # We can not play a game without a state
             self.pprint("Error: Please verify your settings.")
             self.pprint("Settings:", self.config.__dict__)
             self.running = False
@@ -399,6 +420,7 @@ class Client:
                 return response.json()
             else:
                 self.pprint("Error HTTP ", str(response.status_code), ": ", response.text)
+                self.time_out += 1
                 self.running = False
                 return {'game': {'finished': True}}
         except requests.exceptions.RequestException as e:
@@ -411,8 +433,6 @@ class Client:
         if not self.gui.paused:
             # Draw the map
             self.gui.draw_map(self.bot.game.board_map, self.bot.path_to_goal, self.bot.game.heroes)
-            # Print informations about other players
-            self.gui.display_heroes(self.bot.game.heroes, self.bot.game.hero.user_id)
             # Use the following methods to display datas
             # within the interface
             self.gui.display_url(self.bot.game.url)
@@ -437,6 +457,8 @@ class Client:
             self.gui.display_last_nearest_mine(self.bot.last_nearest_mine_pos)
             self.gui.display_last_nearest_hero(self.bot.last_nearest_enemy_pos)
             self.gui.display_last_nearest_tavern(self.bot.last_nearest_tavern_pos)
+            # Print informations about other players
+            self.gui.display_heroes(self.bot.game.heroes, self.bot.game.hero.bot_id)
             # Print a *list of tuples* representing what you think can be usefull
             # i.e an heuristic result
             self.gui.display_decision(self.bot.decision)
