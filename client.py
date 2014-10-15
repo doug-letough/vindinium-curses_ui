@@ -253,7 +253,7 @@ class Client:
                 self.pprint("* " + winner[0] + " wins. ******************")
                 self.gui.display_summary(str(i+1) + "/" + str(self.config.number_of_games),
                                         str(self.victory) + "/" + str(i+1),
-                                        str(self.time_out) + "/" +  "/" + str(i+1))
+                                        str(self.time_out) + "/" + str(i+1))
                 self.pprint("Game finished: "+ str(i+1) + "/" + str(self.config.number_of_games))
 
     def replay(self):
