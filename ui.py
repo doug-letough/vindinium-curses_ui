@@ -50,6 +50,10 @@ class tui:
         self.MENU_X = 0
         self.MENU_H = 24
         self.MENU_W = 0
+        self.SUMMARY_Y = self.LOG_Y + 5
+        self.SUMMARY_X = self.LOG_X + self.LOG_W + 2
+        self.SUMMARY_H = 7
+        self.SUMMARY_W = 20
         self.data_win = None
         self.map_win = None
         self.path_win = None
@@ -59,6 +63,7 @@ class tui:
         self.time_win = None
         self.menu_win = None
         self.time_win = None
+        self.summary_win = None
         self.log_entries = []
         self.stdscr = curses.initscr()
         curses.start_color()
@@ -110,6 +115,8 @@ class tui:
             self.players_win.erase()
         if self.time_win:
             self.time_win.erase()
+        if self.summary_win:
+            self.summary_win.erase()
         if self.menu_win:
             self.menu_win.erase()
         curses.doupdate()
@@ -118,6 +125,7 @@ class tui:
         """Refresh all windows"""
         self.stdscr.addstr(self.DATA_Y - 1, self.DATA_X + 1, "Game", curses.A_BOLD)
         self.stdscr.addstr(self.PLAYERS_Y - 1, self.PLAYERS_X + 1, "Players", curses.A_BOLD)
+        self.stdscr.addstr(self.SUMMARY_Y - 1, self.SUMMARY_X + 1, "Games summary", curses.A_BOLD)
         self.stdscr.noutrefresh()
         self.data_win.noutrefresh()
         if self.map_win:
@@ -132,6 +140,8 @@ class tui:
             self.players_win.noutrefresh()
         if self.time_win:
             self.time_win.noutrefresh()
+        if self.summary_win:
+            self.summary_win.noutrefresh()
         if self.menu_win:
             self.menu_win.noutrefresh()
         curses.doupdate()
@@ -148,6 +158,7 @@ class tui:
         self.draw_log_win()
         self.draw_help_win()
         self.draw_players_win()
+        self.draw_summary_win()
         curses.panel.update_panels()
         curses.doupdate()
 
@@ -254,7 +265,7 @@ class tui:
         for line in players_lines:
             self.players_win.addstr(y+1, 1, line, curses.A_BOLD)
             if y < len(players_lines)*2 - 2:
-                self.players_win.hline(y + 2, 1, curses.ACS_HLINE, self.PLAYERS_W-2)
+                self.players_win.hline(y + 2, 1, curses.ACS_HLINE, self.PLAYERS_W - 2)
                 self.players_win.addch(y + 2, 0, curses.ACS_LTEE)
                 self.players_win.addch(y + 2, 11, curses.ACS_PLUS)
                 self.players_win.addch(y + 2, 29, curses.ACS_PLUS)
@@ -270,6 +281,24 @@ class tui:
         self.time_pan = curses.panel.new_panel(self.time_win)
         self.time_win.box()
         self.time_win.addstr(1, 1, " ", curses.color_pair(4) + curses.A_REVERSE)
+
+    def draw_summary_win(self):
+        """Draw sumary window"""
+        self.stdscr.addstr(self.SUMMARY_Y - 1, self.SUMMARY_X + 1, "Games summary", curses.A_BOLD)
+        self.summary_win = curses.newwin(self.SUMMARY_H, self.SUMMARY_W, self.SUMMARY_Y, self.SUMMARY_X)
+        self.summary_pan = curses.panel.new_panel(self.summary_win)
+        self.summary_win.box()
+        self.summary_win.vline(1, 10, curses.ACS_VLINE, self.SUMMARY_H - 2)
+        self.summary_win.addch(0, 10, curses.ACS_TTEE)
+        self.summary_win.addch(self.SUMMARY_H - 1, 10, curses.ACS_BTEE)
+        for i in range(2, self.SUMMARY_H - 1, 2):
+            self.summary_win.hline(i, 1, curses.ACS_HLINE, self.SUMMARY_W - 2)
+            self.summary_win.addch(i, 0, curses.ACS_LTEE)
+            self.summary_win.addch(i, 10, curses.ACS_PLUS)
+            self.summary_win.addch(i, self.SUMMARY_W - 1, curses.ACS_RTEE)
+        self.summary_win.addstr(1, 1, "Played", curses.A_BOLD)
+        self.summary_win.addstr(3, 1, "Won", curses.A_BOLD)
+        self.summary_win.addstr(5, 1, "Timed out", curses.A_BOLD)
 
 # MAP ------------------------------------------------------------------
 
@@ -529,6 +558,12 @@ class tui:
         for h in decision:
             d += str(h[0])+": "+str(h[1])+" | "
         self.path_win.addstr(1, 14, d)
+
+    def display_summary(self, played, won, timed_out):
+        data = ['', played, '', won, '', timed_out]
+        for i in range(1, 7, 2):
+            self.summary_win.hline(i, 11, " ", 8)
+            self.summary_win.addstr(i, 11, data[i])
 
     def display_path(self, path):
         self.path_win.hline(3, 14, " ", 51)

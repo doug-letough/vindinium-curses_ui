@@ -159,6 +159,9 @@ class Client:
         #        line = line.strip(chr(0)).strip()
         #        if len(line) > 0:
         #            self.states.append(ast.literal_eval(line)) <<< Here is the problem
+        #
+        # MUST TRY:
+        # games=[json.loads(line[6:]) for line in requests.get(game_file_url).content.splitlines() if line.startswith("data: ")]
         #           
         self.gui.quit_ui()
         os.system('cls' if os.name == 'nt' else 'clear')
@@ -243,17 +246,18 @@ class Client:
             if self.bot.running:
                 self.start_game()
                 gold = 0
-                winner = "Noone"
+                winner = ("Noone", -1)
                 for player in self.bot.game.heroes:
                     if int(player.gold) > gold:
-                        winner = player.name
+                        winner = (player.name, player.bot_id)
                         gold = int(player.gold)
-                        if player.bot_id == self.bot.game.hero.bot_id:
-                            self.victory += 1
-                self.pprint("* " + winner + " wins. ******************")
-                self.pprint("Won: " + str(self.victory) + "/" + str(self.config.number_of_games) +\
-                            " | Timed out: " + str(self.time_out) + "/" + str(self.config.number_of_games))
-                self.pprint("Game finished: "+str(i+1) + "/" + str(self.config.number_of_games))
+                if winner[1] == self.bot.game.hero.bot_id:
+                    self.victory += 1
+                self.pprint("* " + winner[0] + " wins. ******************")
+                self.gui.display_summary(str(i+1) + "/" + str(self.config.number_of_games),
+                                        str(self.victory) + "/" + str(i+1),
+                                        str(self.time_out) + "/" + str(i+1))
+                self.pprint("Game finished: "+ str(i+1) + "/" + str(self.config.number_of_games))
 
     def replay(self):
         """Replay last game"""
@@ -318,7 +322,8 @@ class Client:
                     if self.bot.running:
                         direction = self.bot.move(self.state)
                         self.display_game()
-                except Exception, e:
+                except Exception as e:
+                    # Super error trap !
                     if self.gui.log_win:
                         self.pprint("Error at client.start_game:", str(e))
                         self.pprint("If your code or your settings are not responsible of this error, please report this error to:")

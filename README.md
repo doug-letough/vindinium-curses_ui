@@ -128,7 +128,7 @@ http://www.vindinium.org/
     as it guaranties an first-hand answer.
 
 
-X - Note :
+6 - Note :
 ----------
 
     The code provided here do NOT contains any AI or path-finding code 
@@ -139,6 +139,7 @@ X - Note :
 
 
 
+![Curses U.I running a game](screenshots/vindinium_curses_ui.png)
 ![Main menu](screenshots/01.png)
 ![Game mode selection](screenshots/02.png)
 ![Number of games input (Arena mode)](screenshots/03.png)
@@ -150,4 +151,3 @@ X - Note :
 ![Game map selection (Training mode)](screenshots/09.png)
 ![Game file path input](screenshots/10.png)
 ![Game file URL input](screenshots/11.png)
-![Curses U.I running a game](screenshots/vindinium_curses_ui.png)
