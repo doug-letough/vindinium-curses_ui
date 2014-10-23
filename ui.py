@@ -623,7 +623,14 @@ class tui:
                 except IndexError:
                     # No more entries in log_entries
                     pass
-
+                except Exception as e:
+                    self.quit_ui()
+                    print e
+                    print "Error at display_log. i=", i, \
+                            "log entry:", self.log_entries[i], \
+                            "attr:", attr, \
+                            "LOG_H:", self.LOG_H
+                    quit(1)
 # Setup windows --------------------------------------------------------
     def ask_action(self):
         """Return the inputed value"""
