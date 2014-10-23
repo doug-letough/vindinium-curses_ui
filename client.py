@@ -241,6 +241,8 @@ class Client:
 
     def play(self):
         """Play all games"""
+        self.victory = 0
+        self.time_out = 0
         for i in range(self.config.number_of_games):
             # start a new game
             if self.bot.running:
@@ -275,7 +277,6 @@ class Client:
                         gold = int(player.gold)
                 self.pprint("**** " + winner + " wins. ****")
                 self.pprint("Game finished: "+str(i+1)+"/"+str(self.config.number_of_games))
-                self.pprint("Game finished.")
 
     def start_game(self):
         """Starts a game with all the required parameters"""
