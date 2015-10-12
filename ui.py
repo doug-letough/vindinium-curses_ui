@@ -648,7 +648,7 @@ class tui:
                 if num > 0:
                     return True
             except (ValueError, TypeError):
-                self.menu_win.addstr(15, offset + 7, "Please, input a integer greater than 0.", curses.color_pair(3))
+                self.menu_win.addstr(15, offset + 7, "Please, input an integer greater than 0.", curses.color_pair(3))
                 self.menu_win.refresh()
         return False
 
