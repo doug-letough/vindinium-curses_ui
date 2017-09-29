@@ -65,7 +65,7 @@ class Client:
                 self.gui.append_log(printable)
                 self.gui.refresh()
         else:
-            print printable
+            print (printable)
 
     def load_config(self):
         """Load saved config from file ~/.vindinium/config"""
@@ -83,7 +83,7 @@ class Client:
                 self.config.number_of_turns = config_parser.getint("game", "number_of_turns")
         except (IOError, ConfigParser.Error) as e:
             self.gui.quit_ui()
-            print "Error while loading config file", config_file_name, ":", e
+            print ("Error while loading config file", config_file_name, ":", e)
             quit(1)
 
     def save_config(self):
@@ -101,7 +101,7 @@ class Client:
                 config_parser.write(config_file)
         except (IOError, ConfigParser.Error) as e:
             self.gui.quit_ui()
-            print "Error  while saving config file", config_file_name, ":", e
+            print ("Error  while saving config file", config_file_name, ":", e)
             quit(1)
 
     def load_game(self, game_file_name):
@@ -116,7 +116,7 @@ class Client:
             self.state = self.states[0]
         except (IOError, IndexError) as e:
             self.gui.quit_ui()
-            print "Error while loading game file", game_file_name, ":", e
+            print ("Error while loading game file", game_file_name, ":", e)
             quit(1)
 
     def save_game(self):
@@ -165,12 +165,12 @@ class Client:
         #           
         self.gui.quit_ui()
         os.system('cls' if os.name == 'nt' else 'clear')
-        print "********************************************************"
-        print "*            Feature not available yet.                *"
-        print "*           Please wait for U.I restart                *"
-        print "********************************************************"
+        print ("********************************************************")
+        print ("*            Feature not available yet.                *")
+        print ("*           Please wait for U.I restart                *")
+        print ("********************************************************")
         for i in reversed(range(1, 6)):
-            print i
+            print (i)
             time.sleep(1)
         self.start_ui()
 
@@ -372,7 +372,7 @@ class Client:
                     if self.bot.running:
                         self.bot.process_game(state)
                         self.display_game()
-                except Exception, e:
+                except (Exception, e):
                     if self.gui.log_win:
                         self.pprint("Error at client.restart_game:", str(e))
                         self.pprint("If your code or your settings are not responsible of this error, please report this error to:")
@@ -491,9 +491,9 @@ if __name__ == "__main__":
         # Go for interactive setup
         client.start_ui()
     elif len(sys.argv) < 3 or sys.argv[1] == "--help":
-        print "Usage: %s <key> <[training|arena]> <number-of-games|number-of-turns> [server-url]" % (sys.argv[0])
-        print "or: %s " % (sys.argv[0])
-        print 'Example: %s mySecretKey training 20' % (sys.argv[0])
+        print ("Usage: %s <key> <[training|arena]> <number-of-games|number-of-turns> [server-url]" % (sys.argv[0]))
+        print ("or: %s " % (sys.argv[0]))
+        print ('Example: %s mySecretKey training 20' % (sys.argv[0]))
         exit(0)
     elif len(sys.argv) > 3:
         client.config.key = sys.argv[1]

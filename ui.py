@@ -85,9 +85,9 @@ class tui:
             curses.resizeterm(MIN_LINES, MIN_COLS)
             if not curses.is_term_resized(MIN_LINES, MIN_COLS):
                 self.quit_ui()
-                print "Unable to change your terminal size. Your terminal must be at least", \
+                print ("Unable to change your terminal size. Your terminal must be at least", \
                         MIN_LINES, "lines and", MIN_COLS, "columns and it actually has", \
-                        screen_y, "lines and", screen_x, "columns."
+                        screen_y, "lines and", screen_x, "columns.")
                 quit(1)
         # Screen is up
         curses.noecho()
@@ -625,11 +625,11 @@ class tui:
                     pass
                 except Exception as e:
                     self.quit_ui()
-                    print e
-                    print "Error at display_log. i=", i, \
+                    print (e)
+                    print ("Error at display_log. i=", i, \
                             "log entry:", self.log_entries[i], \
                             "attr:", attr, \
-                            "LOG_H:", self.LOG_H
+                            "LOG_H:", self.LOG_H)
                     quit(1)
 # Setup windows --------------------------------------------------------
     def ask_action(self):
