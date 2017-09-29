@@ -1,4 +1,4 @@
-vindinium-curses_ui
+vindinium-python-client
 ===================
 
 Python/Curses user interface for the Vindinium A.I contest.
