@@ -5,7 +5,7 @@ import curses
 import curses.panel
 import curses.textpad
 import re
-import urlparse
+from urllib.parse import urlparse
 import os
 
 # Minimal terminal size
@@ -85,9 +85,9 @@ class tui:
             curses.resizeterm(MIN_LINES, MIN_COLS)
             if not curses.is_term_resized(MIN_LINES, MIN_COLS):
                 self.quit_ui()
-                print "Unable to change your terminal size. Your terminal must be at least", \
+                print ("Unable to change your terminal size. Your terminal must be at least", \
                         MIN_LINES, "lines and", MIN_COLS, "columns and it actually has", \
-                        screen_y, "lines and", screen_x, "columns."
+                        screen_y, "lines and", screen_x, "columns.")
                 quit(1)
         # Screen is up
         curses.noecho()
@@ -625,11 +625,11 @@ class tui:
                     pass
                 except Exception as e:
                     self.quit_ui()
-                    print e
-                    print "Error at display_log. i=", i, \
+                    print (e)
+                    print ("Error at display_log. i=", i, \
                             "log entry:", self.log_entries[i], \
                             "attr:", attr, \
-                            "LOG_H:", self.LOG_H
+                            "LOG_H:", self.LOG_H)
                     quit(1)
 # Setup windows --------------------------------------------------------
     def ask_action(self):
@@ -641,7 +641,7 @@ class tui:
         """Return True if num is int and if num > 0
         Print error message and return false otherwise"""
         screen_y, screen_x = self.stdscr.getmaxyx()
-        offset = screen_x/2 - 25
+        offset = screen_x // 2 - 25
         if num is not None:
             try:
                 num = int(str(num).strip(chr(0)))
@@ -671,11 +671,11 @@ class tui:
     def check_url(self, url):
         """Return True if url is a valid url"""
         screen_y, screen_x = self.stdscr.getmaxyx()
-        offset = screen_x/2 - 25
+        offset = screen_x // 2 - 25
         url = url.strip(chr(0)).strip()
         if len(url) > 0:
             # text_box.edit return a null char at start:(
-            check = urlparse.urlparse(url)
+            check = urlparse(url)
             if len(check.scheme) > 0 and len(check.netloc) > 0:
                 return True
             self.menu_win.addstr(15, offset + 12, "Please, input a valid URL.", curses.color_pair(3))
@@ -685,11 +685,11 @@ class tui:
     def check_file_url(self, url):
         """Return True if url is a valid url with 'file path'"""
         screen_y, screen_x = self.stdscr.getmaxyx()
-        offset = screen_x/2 - 25
+        offset = screen_x // 2 - 25
         url = url.strip(chr(0)).strip()
         if len(url) > 0:
             # text_box.edit return a null char at start:(
-            check = urlparse.urlparse(url)
+            check = urlparse(url)
             if len(check.scheme) > 0 and \
                     len(check.netloc) > 0 and \
                     len(check.path) > 0:
@@ -701,7 +701,7 @@ class tui:
     def check_file_path(self, path):
         """Return True if path is an existant file name"""
         screen_y, screen_x = self.stdscr.getmaxyx()
-        offset = screen_x/2 - 25
+        offset = screen_x // 2 - 25
         path = path.strip(chr(0)).strip()
         if len(path) > 0:
             # text_box.edit return a null char at start
@@ -714,7 +714,7 @@ class tui:
     def check_key(self, player_key):
         """Check the player key format"""
         screen_y, screen_x = self.stdscr.getmaxyx()
-        offset = screen_x / 2 - 25
+        offset = screen_x // 2 - 25
         player_key = player_key.strip(chr(0)).strip()
         if len(player_key) > 0:
             pattern = "^([0-9]|[a-z]){8}"
@@ -731,7 +731,7 @@ class tui:
     def draw_banner(self):
         """Draw the Vindinium banner on self.menu_win"""
         screen_y, screen_x = self.stdscr.getmaxyx()
-        offset = screen_x/2 - 25
+        offset = screen_x // 2 - 25
         self.menu_win.clear()
         self.menu_win.box()
         self.menu_pan = curses.panel.new_panel(self.menu_win)
@@ -750,7 +750,7 @@ class tui:
     def ask_main_menu(self):
         """Display main menu window and ask for choice"""
         screen_y, screen_x = self.stdscr.getmaxyx()
-        offset = screen_x/2 - 25
+        offset = screen_x // 2 - 25
         choice = "0"
         options = ["1", "2", "3", "4", "5"]
         self.menu_win = curses.newwin(self.MENU_H, self.MENU_W, self.MENU_Y, self.MENU_X)
@@ -773,7 +773,7 @@ class tui:
     def ask_game_mode(self):
         """Display game mode menu and ask for choice"""
         screen_y, screen_x = self.stdscr.getmaxyx()
-        offset = screen_x/2 - 25
+        offset = screen_x // 2 - 25
         choice = "0"
         options = ["1", "2"]
         self.draw_banner()
@@ -793,7 +793,7 @@ class tui:
     def ask_number_games(self):
         """Ask for number_of_games"""
         screen_y, screen_x = self.stdscr.getmaxyx()
-        offset = screen_x/2 - 25
+        offset = screen_x // 2 - 25
         num_game = None
         self.draw_banner()
         self.menu_win.addstr(10, offset + 19, "ARENA MODE", curses.A_BOLD)
@@ -815,7 +815,7 @@ class tui:
     def ask_number_turns(self):
         """Ask for number_of_turns"""
         screen_y, screen_x = self.stdscr.getmaxyx()
-        offset = screen_x/2 - 25
+        offset = screen_x // 2 - 25
         num_turns = None
         self.draw_banner()
         self.menu_win.addstr(10, offset + 17, "TRAINING MODE", curses.A_BOLD)
@@ -838,7 +838,7 @@ class tui:
         """Ask for server url"""
         server_url = ""
         screen_y, screen_x = self.stdscr.getmaxyx()
-        offset = screen_x/2 - 25
+        offset = screen_x // 2 - 25
         offset_2 = 19
         self.draw_banner()
         if game_mode == "training":
@@ -865,7 +865,7 @@ class tui:
         """Ask for player key"""
         player_key = ""
         screen_y, screen_x = self.stdscr.getmaxyx()
-        offset = screen_x/2 - 25
+        offset = screen_x // 2 - 25
         offset_2 = 19
         self.draw_banner()
         if game_mode == "training":
@@ -891,7 +891,7 @@ class tui:
         """Ask for game file url"""
         file_url = ""
         screen_y, screen_x = self.stdscr.getmaxyx()
-        offset = screen_x / 2 - 25
+        offset = screen_x // 2 - 25
         self.draw_banner()
         self.menu_win.addstr(13, offset - 6, "File URL:", curses.A_BOLD)
         curses.textpad.rectangle(self.menu_win, 12, offset + 5, 14, offset + 55)
@@ -913,7 +913,7 @@ class tui:
         """Ask for game file path"""
         file_path = ""
         screen_y, screen_x = self.stdscr.getmaxyx()
-        offset = screen_x / 2 - 25
+        offset = screen_x // 2 - 25
         self.draw_banner()
         self.menu_win.addstr(13, offset - 6, "File path:", curses.A_BOLD)
         curses.textpad.rectangle(self.menu_win, 12, offset + 5, 14, offset + 55)
@@ -934,7 +934,7 @@ class tui:
     def ask_save_config(self):
         """Ask for config save"""
         screen_y, screen_x = self.stdscr.getmaxyx()
-        offset = screen_x/2 - 25
+        offset = screen_x // 2 - 25
         choice = "0"
         options = ["1", "2"]
         self.menu_win = curses.newwin(self.MENU_H, self.MENU_W, self.MENU_Y, self.MENU_X)
@@ -953,7 +953,7 @@ class tui:
     def ask_play_game(self):
         """Ask for playing game"""
         screen_y, screen_x = self.stdscr.getmaxyx()
-        offset = screen_x/2 - 25
+        offset = screen_x // 2 - 25
         choice = "0"
         options = ["1", "2"]
         self.menu_win = curses.newwin(self.MENU_H, self.MENU_W, self.MENU_Y, self.MENU_X)
@@ -972,7 +972,7 @@ class tui:
     def ask_map(self):
         """Display main menu window and ask for choice"""
         screen_y, screen_x = self.stdscr.getmaxyx()
-        offset = screen_x/2 - 25
+        offset = screen_x // 2 - 25
         choice = "0"
         options = ["1", "2", "3", "4", "5", "6"]
         self.menu_win = curses.newwin(self.MENU_H, self.MENU_W, self.MENU_Y, self.MENU_X)
