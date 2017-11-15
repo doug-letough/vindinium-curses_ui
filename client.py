@@ -487,27 +487,32 @@ class Client:
 
 if __name__ == "__main__":
     client = Client()
-    if len(sys.argv) == 1:
-        # Go for interactive setup
-        client.start_ui()
-    elif len(sys.argv) < 3 or sys.argv[1] == "--help":
-        print ("Usage: %s <key> <[training|arena]> <number-of-games|number-of-turns> [server-url]" % (sys.argv[0]))
-        print ("or: %s " % (sys.argv[0]))
-        print ('Example: %s mySecretKey training 20' % (sys.argv[0]))
-        exit(0)
-    elif len(sys.argv) > 3:
-        client.config.key = sys.argv[1]
-        client.config.game_mode = sys.argv[2]
-        if client.config.game_mode == "training":
-            client.config.number_of_games = 1
-            client.config.number_of_turns = int(sys.argv[3])
-        else:
-            client.config.number_of_games = int(sys.argv[3])
-            client.config.number_of_turns = 300  # Ignored in arena mode
-        if len(sys.argv) == 5:
-            client.config.server_url = sys.argv[4]
-        # Go for playing according to sys.argv
-        # Do not use interactive setup
-        client.start_ui()
-        client.gui.draw_game_windows()
-        client.play()
+    try:
+        if len(sys.argv) == 1:
+            # Go for interactive setup
+            client.start_ui()
+        elif len(sys.argv) < 3 or sys.argv[1] == "--help":
+            print ("Usage: %s <key> <[training|arena]> <number-of-games|number-of-turns> [server-url]" % (sys.argv[0]))
+            print ("or: %s " % (sys.argv[0]))
+            print ('Example: %s mySecretKey training 20' % (sys.argv[0]))
+            exit(0)
+        elif len(sys.argv) > 3:
+            client.config.key = sys.argv[1]
+            client.config.game_mode = sys.argv[2]
+            if client.config.game_mode == "training":
+                client.config.number_of_games = 1
+                client.config.number_of_turns = int(sys.argv[3])
+            else:
+                client.config.number_of_games = int(sys.argv[3])
+                client.config.number_of_turns = 300  # Ignored in arena mode
+            if len(sys.argv) == 5:
+                client.config.server_url = sys.argv[4]
+            # Go for playing according to sys.argv
+            # Do not use interactive setup
+            client.start_ui()
+            client.gui.draw_game_windows()
+            client.play()
+    except Exception as e:
+        if hasattr(client, 'gui'):
+            client.gui.quit_ui()
+            raise e
