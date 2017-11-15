@@ -8,7 +8,7 @@ import sys
 import select
 import time
 import os
-import ConfigParser
+import configparser
 import ast
 
 TIMEOUT = 15
@@ -16,7 +16,7 @@ TIMEOUT = 15
 
 class Config:
     def __init__(self, game_mode="training", server_url="http://vindinium.org",
-                        number_of_games=1, number_of_turns=300, map_name="m3", key=None):
+                       number_of_games=1, number_of_turns=300, map_name="m3", key=None):
         self.game_mode = game_mode
         self.number_of_games = number_of_games
         self.number_of_turns = number_of_turns
@@ -37,7 +37,7 @@ class Client:
         self.bot = Curses_ui_bot()  # Our bot
         self.states = []
         self.delay = 0.5  # Delay in s between turns in replay mode
-        self.victory = 0 
+        self.victory = 0
         self.time_out = 0
 
     def pprint(self, *args, **kwargs):
@@ -52,7 +52,7 @@ class Client:
             a = 1
             coma = ""
             printable = printable + "["
-            for k, v in kwargs.iteritems():
+            for k, v in kwargs.items():
                 if 1 < a < len(kwargs):
                     coma = ", "
                 else:
@@ -69,7 +69,7 @@ class Client:
 
     def load_config(self):
         """Load saved config from file ~/.vindinium/config"""
-        config_parser = ConfigParser.ConfigParser()
+        config_parser = configparser.ConfigParser()
         user_home_dir = os.path.expanduser("~")
         config_file_name = os.path.join(user_home_dir, ".vindinium", "config")
         try:
@@ -81,14 +81,14 @@ class Client:
                 self.config.key = config_parser.get("game", "key")
                 self.config.number_of_games = config_parser.getint("game", "number_of_games")
                 self.config.number_of_turns = config_parser.getint("game", "number_of_turns")
-        except (IOError, ConfigParser.Error) as e:
+        except (IOError, configparser.Error) as e:
             self.gui.quit_ui()
             print ("Error while loading config file", config_file_name, ":", e)
             quit(1)
 
     def save_config(self):
         """Save config to file in ~/.vindinium/config"""
-        config_parser = ConfigParser.ConfigParser()
+        config_parser = configparser.ConfigParser()
         user_home_dir = os.path.expanduser("~")
         config_file_name = os.path.join(user_home_dir, ".vindinium", "config")
         try:
@@ -99,7 +99,7 @@ class Client:
                 for key, value in self.config.__dict__.items():
                     config_parser.set("game", key, value)
                 config_parser.write(config_file)
-        except (IOError, ConfigParser.Error) as e:
+        except (IOError, configparser.Error) as e:
             self.gui.quit_ui()
             print ("Error  while saving config file", config_file_name, ":", e)
             quit(1)
@@ -132,6 +132,7 @@ class Client:
                 game_id = self.states[0]['game']["id"]
             except IndexError:
                 self.pprint("No states available for this game, unable to save game.")
+                return
         game_file_name = os.path.join(user_home_dir, ".vindinium", "save", game_id)
         try:
             if not os.path.isdir(os.path.join(user_home_dir, ".vindinium", "save")):
@@ -146,9 +147,9 @@ class Client:
     def download_game_file(self, game_file_url):
         # I will treat no other forbidden char than space char.
         game_file_url = game_file_url.replace(" ", "%20")
-        # 
+        #
         # FIXME :
-        # 
+        #
         # Game file available online at http://vindinium.org/events/<gameId>
         # are not parsable by ast.literal_eval() ????
         #
@@ -162,7 +163,7 @@ class Client:
         #
         # MUST TRY:
         # games=[json.loads(line[6:]) for line in requests.get(game_file_url).content.splitlines() if line.startswith("data: ")]
-        #           
+        #
         self.gui.quit_ui()
         os.system('cls' if os.name == 'nt' else 'clear')
         print ("********************************************************")
@@ -372,7 +373,7 @@ class Client:
                     if self.bot.running:
                         self.bot.process_game(state)
                         self.display_game()
-                except (Exception, e):
+                except Exception as e:
                     if self.gui.log_win:
                         self.pprint("Error at client.restart_game:", str(e))
                         self.pprint("If your code or your settings are not responsible of this error, please report this error to:")
@@ -397,6 +398,8 @@ class Client:
         elif self.config.game_mode == 'arena':
             params = {'key': self.config.key}
             api_endpoint = '/api/arena'
+        else:
+            raise Exception('Unknown game mode')
         # Wait for 10 minutes
         try:
             r = self.session.post(self.config.server_url + api_endpoint, params, timeout=10*60)
@@ -474,7 +477,7 @@ class Client:
             # in the display
             self.gui.display_path(self.bot.path_to_goal)
             # Move cursor along the time line (cost cpu time)
-            cursor_pos = int(float(self.gui.TIME_W) / self.bot.game.max_turns * self.bot.game.turn)
+            cursor_pos = int(float(self.gui.TIME_W) // self.bot.game.max_turns * self.bot.game.turn)
             self.gui.move_time_cursor(cursor_pos)
             # Finally display selected move
             self.gui.display_move(self.bot.hero_move)
@@ -513,6 +516,6 @@ if __name__ == "__main__":
             client.gui.draw_game_windows()
             client.play()
     except Exception as e:
-        if hasattr(client, 'gui'):
+        if hasattr(client, 'gui') and client.gui is not None:
             client.gui.quit_ui()
-            raise e
+        raise e

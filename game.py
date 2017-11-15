@@ -23,7 +23,7 @@ class Hero:
         self.crashed = hero['crashed']
         self.mine_count = hero['mineCount']
         self.mines = []
-        self.name = hero['name'].encode("utf-8")
+        self.name = hero['name']
 
 
 class Game:
@@ -69,7 +69,7 @@ class Game:
         self.turn = game['turn']
         self.max_turns = game['maxTurns']
         self.finished = game['finished']
-        for key in game:
+        for key in sorted(game.keys()):  # TODO: board must go before heroes
             if key in process:
                 process[key](game[key])
 
@@ -85,7 +85,7 @@ class Game:
             line = tiles[y:y+self.board_size*2]
             for x in range(0, len(line), 2):
                 tile = line[x:x+2]
-                tile_coords = (y/self.board_size/2, x/2)
+                tile_coords = (y//self.board_size//2, x//2)
                 if tile[0] == " ":
                     # It's passable
                     char = " "
