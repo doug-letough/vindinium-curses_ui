@@ -6,7 +6,7 @@ from setuptools import setup, find_packages
 setup(
     name="vindinium-curses_ui",
     version="0.0.1",
-    author="Sam Hocevar",
+    author="Doug Le Tough",
     packages=find_packages(),
     include_package_data=True,
     install_requires=['requests'],
